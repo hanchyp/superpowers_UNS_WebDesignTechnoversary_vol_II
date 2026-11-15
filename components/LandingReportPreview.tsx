@@ -8,8 +8,8 @@ import { Icon } from "./Icon";
 import { LiveMap } from "./LiveMap";
 
 const title = "Indikasi asap dari arah kanal";
-const photo = "/photos/sebangau-rawa.jpg";
-const photoAlt = "Rawa gambut yang digunakan sebagai foto simulasi laporan";
+const photo = "/photos/simulasi-karhutla-kanal.webp";
+const photoAlt = "Asap dan api kecil di semak lahan gambut di seberang kanal";
 
 export function LandingReportPreview({ incident, className }: { incident: Incident; className: string }) {
   const photoDialog = useRef<HTMLDialogElement>(null);
