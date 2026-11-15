@@ -1,29 +1,24 @@
 import Image from "next/image";
 import Link from "next/link";
-import { SimBadge } from "@/components/Brand";
 import { EmergencyStrip, SiteFooter } from "@/components/Chrome";
 import { HeroVideo } from "@/components/HeroVideo";
-import { Icon, type IconName } from "@/components/Icon";
+import { Icon } from "@/components/Icon";
+import { LandingAbilities } from "@/components/LandingAbilities";
 import { LandingIntro } from "@/components/LandingIntro";
 import { LandingNav } from "@/components/LandingNav";
 import { LandingScrollMotion } from "@/components/LandingScrollMotion";
-import { LiveMap } from "@/components/LiveMap";
+import { LandingReportPreview } from "@/components/LandingReportPreview";
 import { RegionalMap } from "@/components/Map";
-import { EvidenceLadder, IncidentTags } from "@/components/Status";
+import { IncidentTags } from "@/components/Status";
 import { getIncident } from "@/lib/incidents";
-
-const abilities: { icon: IconName; title: string; text: string; bg: string }[] = [
-  { icon: "map", title: "Melihat", text: "laporan asap dan api di sekitarmu", bg: "bg-white" },
-  { icon: "camera", title: "Melaporkan", text: "indikasi yang kamu lihat, dari tempat aman", bg: "bg-sun" },
-  { icon: "users", title: "Melengkapi", text: "pengamatan warga lain di kejadian yang sama", bg: "bg-sprout" },
-  { icon: "aiCheck", title: "Memahami", text: "seberapa kuat bukti tiap kejadian", bg: "bg-sky-soft" },
-];
 
 const steps = [
   { n: "1", title: "Amati", text: "Lihat asap atau api? Potret dari tempat aman dan tandai lokasi atau arahnya.", bg: "bg-sun" },
   { n: "2", title: "Diperiksa", text: "AI memeriksa foto, waktu, dan lokasi. Lolos berarti layak tampil, belum berarti terverifikasi.", bg: "bg-sky" },
   { n: "3", title: "Dilengkapi", text: "Laporanmu tampil di peta dan warga lain bisa menambah pengamatan di kejadian yang sama.", bg: "bg-moss" },
 ];
+
+const landingCardStyle = "rounded-3xl border-2 border-forest shadow-[0_10px_28px_-8px_rgba(0,0,0,0.22)]";
 
 export default function Home() {
   const featured = getIncident("pulang-pisau")!;
@@ -67,27 +62,7 @@ export default function Home() {
       </section>
 
       {/* Kemampuan */}
-      <section id="cara-kerja" className="bg-tint px-5 py-14 md:py-20">
-        <div className="mx-auto max-w-[1312px]">
-          <div className="flex flex-col items-center gap-3 text-center sm:flex-row sm:justify-center sm:gap-6">
-            <Image src="/mascot/observe.png" alt="Maskot WANA mengamati dengan teropong" width={176} height={176} sizes="176px" className="h-36 w-36 object-contain md:h-44 md:w-44" />
-            <h2 data-landing-reveal="text" className="text-[26px] font-extrabold tracking-[-0.02em] md:text-4xl">Dengan WANA, kamu bisa:</h2>
-          </div>
-          <ul className="mt-8 grid gap-5 md:mt-11 md:grid-cols-4 md:gap-8">
-            {abilities.map((a, index) => (
-              <li key={a.title} data-landing-reveal="bounce" data-motion-order={index} className="flex items-center gap-4 md:flex-col md:text-center">
-                <span className={`grid h-16 w-16 shrink-0 place-items-center rounded-full border-2 border-forest ${a.bg} text-forest shadow-sticker-sm md:h-[100px] md:w-[100px]`}>
-                  <Icon name={a.icon} size={32} className="md:h-11 md:w-11" />
-                </span>
-                <div>
-                  <h3 className="text-xl font-extrabold md:text-2xl">{a.title}</h3>
-                  <p className="mt-0.5 text-[15px] font-medium text-ink-2 md:mx-auto md:mt-2 md:max-w-[240px] md:text-base">{a.text}</p>
-                </div>
-              </li>
-            ))}
-          </ul>
-        </div>
-      </section>
+      <LandingAbilities />
 
       {/* Contoh satu pengamatan */}
       <section id="cerita" className="px-5 py-14 md:py-24">
@@ -95,47 +70,7 @@ export default function Home() {
           <h2 data-landing-reveal="text" className="text-[28px] font-extrabold leading-tight tracking-[-0.025em] md:text-center md:text-[40px]">
             Setiap pengamatan punya cerita
           </h2>
-          <article className="sticker-card mt-8 grid gap-6 bg-tint p-5 md:mt-10 md:grid-cols-2 md:gap-10 md:p-9">
-            <div className="flex flex-col gap-4">
-              <p className="text-[13px] font-extrabold text-earth">Siapa</p>
-              <p className="flex items-center gap-3 text-[15px] font-bold md:text-[17px]">
-                <span className="grid h-10 w-10 place-items-center rounded-full border-2 border-forest bg-sun font-extrabold text-forest">R</span>
-                Warga Pulang Pisau · identitas dilindungi
-              </p>
-              <p className="text-[13px] font-extrabold text-earth">Apa</p>
-              <div data-landing-reveal="curtain" className="relative h-52 overflow-hidden rounded-2xl border-2 border-forest md:h-72">
-                <Image src="/photos/sebangau-rawa.jpg" alt="Foto simulasi pengamatan asap di lahan gambut" fill loading="eager" sizes="(min-width: 768px) 540px, 100vw" className="object-cover" />
-                <span className="absolute left-[55%] top-[12%] h-36 w-40 rounded-full bg-[#e9e6e0]/80 blur-2xl" aria-hidden="true" />
-                <span className="absolute bottom-3 left-3 rounded-full bg-ink/85 px-3 py-1.5 font-mono text-xs text-white">
-                  Foto simulasi · EXIF lokasi dihapus
-                </span>
-              </div>
-              <p className="flex items-center gap-2.5 text-lg font-extrabold md:text-xl">
-                <span className="grid h-9 w-9 place-items-center rounded-full bg-smoke text-white">
-                  <Icon name="smoke" size={18} />
-                </span>
-                Indikasi asap dari arah kanal
-              </p>
-            </div>
-            <div className="flex flex-col gap-4">
-              <p className="text-[13px] font-extrabold text-earth">Di mana</p>
-              <LiveMap
-                center={[featured.lon, featured.lat]}
-                zoom={9.5}
-                incidents={[featured]}
-                area={{ lon: featured.lon, lat: featured.lat, radiusKm: featured.radiusKm }}
-                cooperative
-                controls="zoom"
-                controlsClassName="absolute right-3 top-3"
-                className="h-48 w-full rounded-2xl border-2 border-forest md:h-64"
-              />
-              <p data-landing-reveal="slide" className="text-[15px] font-bold md:text-base">Area perkiraan di sekitar Pulang Pisau, Kalimantan Tengah</p>
-              <p className="text-[13px] font-extrabold text-earth">Kapan</p>
-              <p data-landing-reveal="slide" data-motion-order="1" className="font-mono text-[15px]">8 Nov 2026 · 13:58 WIB</p>
-              <p className="text-[13px] font-extrabold text-earth">Seberapa kuat?</p>
-              <EvidenceLadder incident={featured} labels="summary" />
-            </div>
-          </article>
+          <LandingReportPreview incident={featured} className={landingCardStyle} />
         </div>
       </section>
 
