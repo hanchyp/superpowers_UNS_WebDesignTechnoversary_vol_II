@@ -43,7 +43,6 @@
   --color-water: #cfe0e6;
 
   --shadow-sticker: 0 4px 0 0 #0e4d2c;
-  --shadow-sticker-sm: 0 3px 0 0 #0e4d2c;
   --shadow-float: 0 14px 34px -8px rgb(19 38 27 / 0.22);
   --shadow-soft: 0 6px 18px -6px rgb(19 38 27 / 0.16);
 }
@@ -79,10 +78,10 @@ body {
   @apply inline-flex items-center justify-center gap-2 rounded-full font-bold transition
     focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-sun;
 }
-/* Aksi melapor: pill kuning dengan bayangan stiker */
+/* Aksi melapor: pill kuning */
 @utility btn-report {
-  @apply btn border-2 border-forest bg-sun text-forest shadow-sticker
-    hover:-translate-y-px active:translate-y-0.5 active:shadow-none;
+  @apply btn border-2 border-forest bg-sun text-forest
+    hover:bg-[#ffd666] active:translate-y-px;
 }
 @utility btn-primary {
   @apply btn bg-leaf text-white hover:bg-forest;

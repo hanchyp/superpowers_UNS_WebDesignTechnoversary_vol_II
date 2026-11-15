@@ -291,7 +291,7 @@ export function LiveMap({
                 if (!map) return;
                 map.easeTo({ center: item.coords, zoom: Math.min(index.getClusterExpansionZoom(item.clusterId) + 0.5, 12) });
               }}
-              className="relative grid h-12 w-12 place-items-center rounded-full border-2 border-forest bg-white text-lg font-extrabold text-forest shadow-soft transition hover:scale-105"
+              className="relative grid h-12 w-12 place-items-center rounded-full border-2 border-forest bg-white text-lg font-extrabold text-forest transition hover:scale-105"
               aria-label={`${item.count} kejadian di area ini, perbesar`}
             >
               <span className="absolute inset-1 rounded-full border border-forest/30" aria-hidden="true" />
@@ -308,7 +308,7 @@ export function LiveMap({
       {controls !== "none" && ready && (
         <div className={`${controlsClassName} z-10 flex flex-col gap-2.5`}>
           {(controls === "full" || controls === "zoom") && (
-            <div className="flex w-12 flex-col items-center rounded-full bg-white shadow-soft">
+            <div className="flex w-12 flex-col items-center rounded-full border border-control bg-white">
               <button type="button" onClick={() => zoomBy(1)} className="grid h-12 w-12 place-items-center" aria-label="Perbesar">
                 <Icon name="plus" size={20} />
               </button>
@@ -319,7 +319,7 @@ export function LiveMap({
             </div>
           )}
           {(controls === "full" || controls === "locate") && (
-            <button type="button" onClick={locate} className="grid h-12 w-12 place-items-center rounded-full bg-white shadow-soft" aria-label="Gunakan lokasi saya">
+            <button type="button" onClick={locate} className="grid h-12 w-12 place-items-center rounded-full border border-control bg-white" aria-label="Gunakan lokasi saya">
               <Icon name="locate" size={20} />
             </button>
           )}
@@ -327,7 +327,7 @@ export function LiveMap({
             <button
               type="button"
               onClick={() => mapRef.current?.flyTo({ ...INDONESIA_VIEW, essential: true })}
-              className="grid h-12 w-12 place-items-center rounded-full bg-white shadow-soft"
+              className="grid h-12 w-12 place-items-center rounded-full border border-control bg-white"
               aria-label="Lihat seluruh Indonesia"
             >
               <Icon name="map" size={20} />
@@ -357,7 +357,7 @@ function PinButton({ incident, selected, onSelect }: { incident: Incident; selec
         </span>
       ) : (
         <span
-          className={`relative grid h-9 w-9 place-items-center rounded-full text-white shadow-[0_2px_6px_rgb(19_38_27/0.35)] ring-[2.5px] ring-white ${fire ? "bg-fire" : "bg-smoke"}`}
+          className={`relative grid h-9 w-9 place-items-center rounded-full text-white ring-[2.5px] ring-white ${fire ? "bg-fire" : "bg-smoke"}`}
         >
           <Icon name={fire ? "flame" : "smoke"} size={18} />
           {incident.indication === "keduanya" && (

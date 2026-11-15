@@ -199,7 +199,7 @@ function Published() {
             <p className="mt-2 text-[13px] font-semibold text-ai-ink">Lolos pemeriksaan awal AI. Kejadian belum terverifikasi.</p>
           </div>
           <div className="mt-6 flex w-full flex-col gap-2.5">
-            <Link href="/kejadian/pulang-pisau" className="btn border-2 border-forest bg-leaf py-3.5 text-base font-extrabold text-white shadow-sticker">
+            <Link href="/kejadian/pulang-pisau" className="btn border-2 border-forest bg-leaf py-3.5 text-base font-extrabold text-white">
               Lihat kejadian di peta
             </Link>
             <button type="button" className="btn-outline py-3.5 text-[15px]">

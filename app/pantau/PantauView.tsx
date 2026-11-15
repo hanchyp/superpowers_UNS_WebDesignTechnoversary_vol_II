@@ -85,12 +85,12 @@ export function PantauView() {
 function FilterChips({ compact = false }: { compact?: boolean }) {
   return (
     <div className={`flex gap-2 ${compact ? "" : "flex-wrap"}`}>
-      <button type="button" className={`chip-active shrink-0 ${compact ? "shadow-soft" : ""}`} aria-pressed="true">
+      <button type="button" className="chip-active shrink-0" aria-pressed="true">
         {!compact && <Icon name="clock" size={16} />}
         24 jam
       </button>
       {filters.map((f) => (
-        <button key={f} type="button" className={`chip shrink-0 ${compact ? "border-transparent shadow-soft" : ""}`}>
+        <button key={f} type="button" className="chip shrink-0">
           {f}
         </button>
       ))}
@@ -108,7 +108,7 @@ function ViewToggle({ view, onChange }: { view: "peta" | "daftar"; onChange: (v:
           role="tab"
           aria-selected={view === v}
           onClick={() => onChange(v)}
-          className={`rounded-full px-3.5 py-1.5 text-[13px] capitalize ${view === v ? "bg-white font-bold text-ink shadow-sm" : "font-semibold text-ink-2"}`}
+          className={`rounded-full px-3.5 py-1.5 text-[13px] capitalize ${view === v ? "bg-white font-bold text-ink" : "font-semibold text-ink-2"}`}
         >
           {v}
         </button>
