@@ -2,15 +2,9 @@
 
 import Link from "next/link";
 import { useState } from "react";
+import { siteLinks } from "@/lib/siteLinks";
 import { Logo } from "./Brand";
 import { Icon } from "./Icon";
-
-const links = [
-  { href: "/pantau", label: "Pantau Wilayah" },
-  { href: "/edukasi", label: "Edukasi" },
-  { href: "#cerita", label: "Tentang" },
-  { href: "/kontak", label: "Kontak" },
-];
 
 export function LandingNav() {
   const [open, setOpen] = useState(false);
@@ -19,7 +13,7 @@ export function LandingNav() {
       <div className="mx-auto flex h-20 max-w-[1312px] items-center justify-between px-5 md:h-24 md:px-8">
         <Logo tone="white" wordmark />
         <nav className="hidden items-center gap-9 md:flex" aria-label="Utama">
-          {links.map((l) => (
+          {siteLinks.map((l) => (
             <Link key={l.label} href={l.href} className="text-base font-semibold text-white/95 hover:text-white">
               {l.label}
             </Link>
@@ -45,7 +39,7 @@ export function LandingNav() {
       </div>
       {open && (
         <div className="mx-4 rounded-3xl bg-white p-3 shadow-float md:hidden">
-          {links.map((l) => (
+          {siteLinks.map((l) => (
             <Link
               key={l.label}
               href={l.href}

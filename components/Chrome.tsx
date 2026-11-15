@@ -1,16 +1,11 @@
 import Image from "next/image";
 import Link from "next/link";
+import { siteLinks } from "@/lib/siteLinks";
 import { Logo } from "./Brand";
 import { Icon } from "./Icon";
 
-const navLinks = [
-  { href: "/pantau", label: "Pantau Wilayah" },
-  { href: "/edukasi", label: "Edukasi" },
-  { href: "/kontak", label: "Kontak" },
-];
-
 /** Bar atas halaman alat (Pantau, Detail, Lapor, Status). */
-export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi" | "kontak"; search?: boolean }) {
+export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi" | "tentang" | "kontak"; search?: boolean }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
       <div className="flex h-16 items-center gap-4 px-4 md:h-[72px] md:gap-7 md:px-7">
@@ -27,7 +22,7 @@ export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi
         )}
         <div className="flex-1" />
         <nav className="hidden items-center gap-1 md:flex" aria-label="Utama">
-          {navLinks.map((l) => (
+          {siteLinks.map((l) => (
             <Link
               key={l.href}
               href={l.href}
@@ -118,25 +113,20 @@ export function SiteFooter() {
               Laporkan pengamatan
             </Link>
           </div>
-          <div className="grid grid-cols-2 gap-x-12 gap-y-2 text-[15px] font-semibold leading-8 text-[#e3f4da] md:grid-cols-3">
-            <ul>
-              <li className="text-white/60">Jelajahi</li>
-              <li><Link href="/pantau">Pantau Wilayah</Link></li>
-              <li><Link href="/lapor">Laporkan</Link></li>
-              <li><Link href="/edukasi">Edukasi</Link></li>
-            </ul>
-            <ul>
-              <li className="text-white/60">WANA</li>
-              <li>Tentang kami</li>
-              <li><Link href="/kontak">Kontak</Link></li>
-            </ul>
-            <ul>
-              <li className="text-white/60">Kebijakan</li>
-              <li>Privasi</li>
-              <li>Ketentuan</li>
-              <li>Aduan informasi</li>
-            </ul>
-          </div>
+          <nav aria-label="Menu footer" className="grid grid-cols-2 gap-6 border-t border-white/20 pt-6 md:shrink-0 md:gap-8 md:border-0 md:pt-2 lg:gap-12">
+            {["Jelajahi", "WANA"].map((group) => (
+              <div key={group} className="min-w-0">
+                <h2 className="text-base font-extrabold">{group}</h2>
+                <ul className="mt-3 space-y-1 text-[15px] font-semibold text-[#e3f4da]">
+                  {siteLinks.filter((link) => link.group === group).map(({ href, label }) => (
+                    <li key={href}>
+                      <Link href={href} className="inline-block py-1.5 underline-offset-4 hover:text-white hover:underline">{label}</Link>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </nav>
         </div>
       </div>
     </footer>

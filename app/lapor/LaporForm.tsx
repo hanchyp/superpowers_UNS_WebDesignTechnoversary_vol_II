@@ -38,7 +38,7 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
       {/* Kepala */}
       <header className="border-b border-line bg-white">
         <div className="flex h-16 items-center gap-3 px-4 md:h-[72px] md:px-7">
-          <Link href="/pantau" className="grid h-10 w-10 place-items-center rounded-full bg-tint md:hidden" aria-label="Batal">
+          <Link href="/" className="grid h-10 w-10 place-items-center rounded-full bg-tint md:hidden" aria-label="Batal">
             <Icon name="x" size={20} />
           </Link>
           <div className="hidden md:block">
@@ -48,7 +48,7 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
             {relatedId ? "Tambahkan pengamatan" : "Laporkan pengamatan"}
           </p>
           <span className="text-[13px] font-semibold text-ink-2">{step + 1}/3</span>
-          <Link href="/pantau" className="hidden text-[15px] font-bold text-ink-2 hover:text-ink md:block">
+          <Link href="/" className="hidden text-[15px] font-bold text-ink-2 hover:text-ink md:block">
             Batal
           </Link>
         </div>
