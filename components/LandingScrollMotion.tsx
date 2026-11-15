@@ -20,8 +20,10 @@ export function LandingScrollMotion() {
       const curtain = effect === "curtain";
       const text = effect === "text";
       const start = curtain
-        ? { opacity: 1, clipPath: "inset(0 50% 0 50%)", scale: 1.08, y: 0 }
-        : { opacity: 0, clipPath: text ? "inset(0 0 100% 0)" : "inset(0)", scale: effect === "stamp" ? 0.8 : 0.97, y: 36 };
+        ? { opacity: 1, scale: 1.08, y: 0 }
+        : { opacity: 0, scale: effect === "stamp" ? 0.8 : 0.97, y: 36 };
+
+      const clipStart = curtain ? "inset(0 50% 0 50%)" : "inset(0 0 100% 0)";
 
       let revealed = false;
       const reveal = () => {
@@ -32,7 +34,7 @@ export function LandingScrollMotion() {
         animations.push(animate(element,
           {
             opacity: [start.opacity, 1],
-            clipPath: [start.clipPath, "inset(0% 0% 0% 0%)"],
+            ...((curtain || text) && { clipPath: [clipStart, "inset(0% 0% 0% 0%)"] }),
             scale: [start.scale, 1],
             y: [start.y, 0],
           },
