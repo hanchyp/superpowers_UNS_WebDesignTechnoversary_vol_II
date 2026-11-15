@@ -2,11 +2,10 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { SimBadge } from "@/components/Brand";
 import { AppBar } from "@/components/Chrome";
 import { Icon } from "@/components/Icon";
 import { LiveMap } from "@/components/LiveMap";
-import { EvidenceLadder, Tag } from "@/components/Status";
+import { Tag } from "@/components/Status";
 import { conditionLabel, getIncident, incidents, type TimelineEntry } from "@/lib/incidents";
 
 export function generateStaticParams() {
@@ -20,10 +19,10 @@ export async function generateMetadata({ params }: PageProps<"/kejadian/[id]">):
 }
 
 const dot: Record<TimelineEntry["kind"], string> = {
-  pengamatan: "bg-support",
-  dukungan: "border-[3px] border-support bg-white",
-  ai: "bg-ai",
-  pertama: "bg-[#9aa79e]",
+  pengamatan: "bg-leaf",
+  dukungan: "border-[3px] border-leaf bg-white",
+  ai: "border-[3px] border-leaf bg-sprout",
+  pertama: "bg-forest",
 };
 
 const checks = [
@@ -56,11 +55,10 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
         <header className="mt-5 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-[880px]">
             <div className="flex flex-wrap items-center gap-2.5">
-              <SimBadge />
-              <span className="font-mono text-xs font-medium text-ink-2">ID kejadian WN-0{incidents.indexOf(incident) + 241}</span>
+              <span className="text-xs font-semibold text-ink-2">ID kejadian WN-0{incidents.indexOf(incident) + 241}</span>
             </div>
             <h1 className="mt-3 text-[28px] font-extrabold leading-[1.15] tracking-[-0.03em] md:text-[44px]">{incident.title}</h1>
-            <p className="mt-3 font-mono text-[13px] font-medium text-ink-2">
+            <p className="mt-3 text-[13px] font-medium text-ink-2 md:text-sm">
               Diamati pertama {incident.firstSeen} · diperbarui {incident.updatedAt} ({incident.updatedAgo})
             </p>
           </div>
@@ -105,17 +103,10 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
             <section className="card p-5 md:p-7">
               <h2 className="text-xl font-extrabold md:text-[22px]">Ringkasan pengamatan</h2>
               <p className="mt-3 text-base font-medium leading-relaxed md:text-[17px]">{incident.summary}</p>
-              <span className="mt-4 inline-flex items-center gap-2 rounded-full bg-ai-soft px-3.5 py-1.5 text-[13px] font-bold text-ai-ink">
-                <Icon name="aiCheck" size={16} />
-                Diringkas AI dari laporan warga, tanpa menambah fakta baru
-              </span>
             </section>
 
             <section className="card p-5 md:p-7">
-              <div className="flex flex-wrap items-center justify-between gap-2">
-                <h2 className="text-xl font-extrabold md:text-[22px]">Hasil pemeriksaan awal AI</h2>
-                <span className="font-mono text-xs font-medium text-ink-2">Pemeriksaan simulasi</span>
-              </div>
+              <h2 className="text-xl font-extrabold md:text-[22px]">Hasil pemeriksaan awal AI</h2>
               <ul className="mt-4 space-y-3">
                 {checks.map((c) => (
                   <li key={c} className="flex items-center gap-3 text-[15px] font-medium md:text-base">
@@ -138,10 +129,10 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
               <ol className="mt-5">
                 {incident.timeline.map((t, idx) => (
                   <li key={t.time + t.title} className="flex gap-4">
-                    <span className="w-12 shrink-0 pt-0.5 font-mono text-[13px] font-medium text-ink-2">{t.time}</span>
+                    <span className="w-12 shrink-0 pt-0.5 text-[13px] font-semibold text-ink-2">{t.time}</span>
                     <span className="flex flex-col items-center pt-1">
-                      <span className={`h-3.5 w-3.5 shrink-0 rounded-full ${dot[t.kind]}`} />
-                      {idx < incident.timeline.length - 1 && <span className="mt-1 w-0.5 flex-1 bg-line" />}
+                      <span className={`h-4 w-4 shrink-0 rounded-full ${dot[t.kind]}`} />
+                      {idx < incident.timeline.length - 1 && <span className="-my-0.5 w-[3px] flex-1 rounded-full bg-leaf" />}
                     </span>
                     <span className="pb-6">
                       <span className="block text-base font-extrabold">{t.title}</span>
@@ -174,7 +165,7 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
                   {incident.precision === "area" ? `Area perkiraan sumber · ±${incident.radiusKm.toLocaleString("id")} km` : "Titik perkiraan pelapor"}
                 </p>
                 <p className="mt-1 text-sm font-medium text-ink-2">Disusun dari pengamatan dan arah pandang warga. Bukan titik pasti.</p>
-                <p className="mt-2 font-mono text-xs text-ink-2">
+                <p className="mt-2 text-xs font-medium text-ink-2">
                   {Math.abs(incident.lat).toFixed(2)}° {incident.lat < 0 ? "LS" : "LU"} · {incident.lon.toFixed(2)}° BT
                 </p>
               </div>
@@ -210,9 +201,6 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
   function StatusBody() {
     return (
       <>
-        <p className="text-sm font-extrabold text-ink-2">Tingkat pemeriksaan</p>
-        <EvidenceLadder incident={incident!} className="mt-3" />
-        <hr className="my-4 border-line" />
         <p className="text-sm font-extrabold text-ink-2">Kondisi terbaru</p>
         <div className="mt-2.5">
           <Tag kind={incident!.stale ? "stale" : conditionTone}>
@@ -222,7 +210,7 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
         <p className="mt-2.5 text-sm font-medium text-ink-2">
           {incident!.stale
             ? "Kondisi saat ini belum diketahui. Informasi lama bukan berarti sudah selesai."
-            : `Menurut pengamatan warga ${incident!.updatedAt}. Bukan keputusan petugas.`}
+            : `Menurut pengamatan warga ${incident!.updatedAt}.`}
         </p>
       </>
     );
