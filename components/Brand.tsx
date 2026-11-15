@@ -7,7 +7,7 @@ export function Logo({ tone = "color", size = "md", wordmark = false, decorative
   wordmark?: boolean;
   decorative?: boolean;
 }) {
-  const dimension = size === "intro" ? 200 : size === "lg" ? 72 : size === "sm" ? 52 : 48;
+  const dimension = size === "intro" ? 280 : size === "lg" ? 72 : size === "sm" ? 52 : 48;
   const mark = (
     <>
       <Image

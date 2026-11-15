@@ -40,16 +40,17 @@ export function LandingIntro({ children }: { children: ReactNode }) {
             }}
           >
             <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 opacity-[0.12]" style={{ backgroundImage: "linear-gradient(#44613a 1px, transparent 1px), linear-gradient(90deg, #44613a 1px, transparent 1px)", backgroundSize: "56px 56px" }} />
-            <motion.div
-              className="absolute inset-x-0 top-[28%] z-10 flex justify-center sm:top-[35%]"
-              animate={reduceMotion ? { scale: 1 } : {
-                scale: [0.85, 1.04, 1],
-                rotate: [-8, 2, 0],
-                transition: { duration: 0.56, times: [0, 0.72, 1] },
-              }}
-            >
-              <Logo size="intro" decorative />
-            </motion.div>
+            <div className="pointer-events-none absolute inset-0 z-10 grid place-items-center">
+              <motion.div
+                animate={reduceMotion ? { scale: 1 } : {
+                  scale: [0.85, 1.04, 1],
+                  rotate: [-8, 2, 0],
+                  transition: { duration: 0.56, times: [0, 0.72, 1] },
+                }}
+              >
+                <Logo size="intro" decorative />
+              </motion.div>
+            </div>
             <motion.div
               aria-hidden="true"
               className="pointer-events-none absolute bottom-[-12vw] left-[-18vw] w-[85vw] origin-bottom sm:bottom-[-22vh] sm:left-[-12vw] sm:w-[min(62vw,90vh)]"
