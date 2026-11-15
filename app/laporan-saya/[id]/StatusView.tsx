@@ -15,7 +15,7 @@ export function StatusView({ reportId, initial, autoAdvance }: { reportId: strin
   // Simulasi demo: pemeriksaan AI selesai beberapa detik setelah halaman dibuka.
   useEffect(() => {
     if (!autoAdvance || state !== "diperiksa") return;
-    const t = setTimeout(() => setState("terbit"), 4500);
+    const t = setTimeout(() => setState("terbit"), 15000);
     return () => clearTimeout(t);
   }, [autoAdvance, state]);
 

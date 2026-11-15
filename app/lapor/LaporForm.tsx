@@ -3,7 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Logo } from "@/components/Brand";
 import { Icon, type IconName } from "@/components/Icon";
 import { LiveMap } from "@/components/LiveMap";
@@ -20,9 +20,10 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
   const [indication, setIndication] = useState<Indication>("asap");
   const [timeMode, setTimeMode] = useState<"sekarang" | "pilih">("sekarang");
   const [locMode, setLocMode] = useState<"titik" | "arah">("titik");
+  const [direction, setDirection] = useState("Timur laut");
   const [mergeChoice, setMergeChoice] = useState<"gabung" | "baru" | null>(relatedId ? "gabung" : null);
   const [agree, setAgree] = useState(true);
-  const [bannerOpen, setBannerOpen] = useState(true);
+  const [time, setTime] = useState("13:50");
   const [note, setNote] = useState("Asap putih naik dari arah kanal di timur desa, sejak sekitar 13:50.");
   const [pin, setPin] = useState<LngLat>([focus.lon, focus.lat]);
   const isWide = useMediaQuery("(min-width: 768px)");
@@ -46,7 +47,7 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
           <p className="flex-1 text-center text-[17px] font-extrabold md:text-left md:pl-6">
             {relatedId ? "Tambahkan pengamatan" : "Laporkan pengamatan"}
           </p>
-          <span className="font-mono text-[13px] text-ink-2">{step + 1}/3</span>
+          <span className="text-[13px] font-semibold text-ink-2">{step + 1}/3</span>
           <Link href="/pantau" className="hidden text-[15px] font-bold text-ink-2 hover:text-ink md:block">
             Batal
           </Link>
@@ -55,18 +56,18 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
 
       <div className="flex min-h-0 flex-1">
         <div className={`flex min-h-0 w-full flex-col ${step === 1 ? "md:w-[560px] md:border-r md:border-line md:bg-white" : ""}`}>
-          <div className={`flex min-h-0 flex-1 flex-col ${step === 1 ? "" : "md:mx-auto md:w-[640px]"}`}>
+          <div className={`flex min-h-0 flex-1 flex-col ${step === 1 ? "" : "md:mx-auto md:w-full md:max-w-[1040px] md:px-4 lg:px-8"}`}>
             <Stepper step={step} />
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 pb-6 pt-1 md:px-8">
               {relatedTitle && (
-                <p className="rounded-2xl bg-support-soft p-3.5 text-sm font-semibold text-support-ink">
+                <p className="rounded-2xl bg-tint p-3.5 text-sm font-semibold text-forest">
                   Kamu menambahkan pengamatan untuk: <strong>{relatedTitle}</strong>
                 </p>
               )}
               {step === 0 && (
                 <StepObservation
-                  bannerOpen={bannerOpen}
-                  onCloseBanner={() => setBannerOpen(false)}
+                  time={time}
+                  setTime={setTime}
                   indication={indication}
                   setIndication={setIndication}
                   timeMode={timeMode}
@@ -76,13 +77,15 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
                 />
               )}
               {step === 1 && (
-                <StepLocation locMode={locMode} setLocMode={setLocMode} pin={pin} onPinChange={setPin} showMap={!isWide} />
+                <StepLocation locMode={locMode} setLocMode={setLocMode} direction={direction} setDirection={setDirection} pin={pin} onPinChange={setPin} showMap={!isWide} />
               )}
               {step === 2 && (
                 <StepReview
+                  time={timeMode === "sekarang" ? "14:32" : time}
                   indication={indication}
                   note={note}
                   locMode={locMode}
+                  direction={direction}
                   mergeChoice={mergeChoice}
                   setMergeChoice={setMergeChoice}
                   agree={agree}
@@ -91,7 +94,7 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
                 />
               )}
             </div>
-            <footer className="flex gap-2.5 border-t border-line bg-white px-4 pb-6 pt-3 md:px-8 md:pb-5">
+            <footer className="flex gap-2.5 px-4 pb-6 pt-3 md:px-8 md:pb-5">
               {step > 0 && (
                 <button type="button" onClick={() => setStep(step - 1)} className="btn-outline px-5 py-3.5 text-base">
                   Kembali
@@ -101,10 +104,9 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
                 type="button"
                 onClick={next}
                 disabled={step === 2 && !agree}
-                className={`${step === 2 ? "btn-report" : "btn-primary"} flex-1 py-3.5 text-base font-extrabold disabled:opacity-50`}
+                className={`btn-primary flex-1 py-3.5 text-base font-extrabold disabled:opacity-50`}
               >
                 {step === 0 ? "Lanjut ke lokasi" : step === 1 ? "Lanjut ke tinjau" : "Kirim untuk diperiksa"}
-                <Icon name="arrowRight" size={18} />
               </button>
             </footer>
           </div>
@@ -121,17 +123,35 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
 
 function Stepper({ step }: { step: number }) {
   return (
-    <ol className="flex gap-2 px-5 pb-4 pt-4 md:px-8 md:pt-6" aria-label="Langkah">
-      {stepNames.map((name, i) => (
-        <li key={name} className="flex flex-1 flex-col gap-1.5" aria-current={i === step ? "step" : undefined}>
-          <span className={`h-1.5 rounded-full ${i <= step ? "bg-leaf" : "bg-line"}`} />
-          <span className={`text-xs md:text-[13px] ${i === step ? "font-extrabold text-leaf" : i < step ? "font-semibold text-leaf" : "font-semibold text-stale"}`}>
-            {i < step ? "✓ " : ""}
-            {name}
-          </span>
-        </li>
-      ))}
-    </ol>
+    <div className="px-5 pb-3 pt-4 md:px-8 md:pb-4 md:pt-6">
+      <ol className="flex rounded-[20px] border border-line bg-white px-2 py-4 md:px-4" aria-label="Langkah">
+        {stepNames.map((name, i) => {
+          const done = i < step;
+          const active = i === step;
+          return (
+            <li key={name} className="relative flex flex-1 flex-col items-center gap-2" aria-current={active ? "step" : undefined}>
+              {i < stepNames.length - 1 && (
+                <span
+                  className={`absolute left-[calc(50%+20px)] right-[calc(-50%+20px)] top-[13px] h-[2px] rounded-full transition-colors duration-300 ${done ? "bg-leaf" : "bg-line"}`}
+                  aria-hidden="true"
+                />
+              )}
+              <span
+                className={`grid h-7 w-7 place-items-center rounded-full transition-all duration-300 ${
+                  done ? "bg-leaf text-white" : active ? "border-2 border-leaf bg-white" : "border-2 border-line bg-white"
+                }`}
+              >
+                {done && <Icon name="check" size={14} strokeWidth={3} />}
+                {active && <span className="h-2.5 w-2.5 rounded-full bg-leaf" />}
+              </span>
+              <span className={`text-xs md:text-[13px] ${active ? "font-bold text-ink" : done ? "font-semibold text-ink-2" : "font-medium text-stale"}`}>
+                {name}
+              </span>
+            </li>
+          );
+        })}
+      </ol>
+    </div>
   );
 }
 
@@ -146,8 +166,8 @@ const options: { value: Indication; label: string; icon: IconName[]; glyph: stri
 ];
 
 function StepObservation(props: {
-  bannerOpen: boolean;
-  onCloseBanner: () => void;
+  time: string;
+  setTime: (v: string) => void;
   indication: Indication;
   setIndication: (v: Indication) => void;
   timeMode: "sekarang" | "pilih";
@@ -157,15 +177,10 @@ function StepObservation(props: {
 }) {
   return (
     <>
-      {props.bannerOpen && (
-        <div className="flex items-center gap-2.5 rounded-2xl bg-fire-soft p-3.5">
-          <Icon name="phone" size={18} className="shrink-0 text-fire" />
-          <p className="flex-1 text-[13px] font-bold text-[#7e1f14]">Bahaya langsung? Hubungi 112 dulu. WANA bukan layanan darurat.</p>
-          <button type="button" onClick={props.onCloseBanner} aria-label="Tutup peringatan" className="text-[#7e1f14]">
-            <Icon name="x" size={18} />
-          </button>
-        </div>
-      )}
+      <div className="flex items-center gap-2.5 rounded-2xl bg-fire-soft p-3.5">
+        <Icon name="phone" size={18} className="shrink-0 text-fire" />
+        <p className="flex-1 text-[13px] font-bold text-[#7e1f14]">Bahaya langsung? Hubungi 112 dulu. WANA bukan layanan darurat.</p>
+      </div>
       <fieldset className="space-y-3">
         <legend className="mb-3"><SectionTitle>Apa yang kamu lihat?</SectionTitle></legend>
         <div className="grid grid-cols-3 gap-2.5">
@@ -193,40 +208,42 @@ function StepObservation(props: {
 
       <div className="space-y-3">
         <SectionTitle>Kapan?</SectionTitle>
-        <div className="flex items-center gap-3">
-          <div className="flex rounded-full bg-line p-[3px]">
+        <div className="flex flex-wrap items-center gap-3">
+          <div className="flex rounded-full bg-line p-[3px]" role="radiogroup" aria-label="Waktu pengamatan">
             {(["sekarang", "pilih"] as const).map((m) => (
               <button
                 key={m}
                 type="button"
+                role="radio"
+                aria-checked={props.timeMode === m}
                 onClick={() => props.setTimeMode(m)}
-                className={`rounded-full px-4 py-2 text-sm ${props.timeMode === m ? "bg-leaf font-bold text-white" : "font-semibold text-ink"}`}
+                className={`rounded-full px-4 py-2 text-sm transition ${props.timeMode === m ? "bg-leaf font-bold text-white shadow-sm" : "font-semibold text-ink hover:text-leaf"}`}
               >
                 {m === "sekarang" ? "Sekarang" : "Pilih waktu"}
               </button>
             ))}
           </div>
           {props.timeMode === "sekarang" ? (
-            <span className="font-mono text-[13px] text-ink-2">14:32 WIB</span>
+            <span className="text-[13px] font-semibold text-ink-2">14:32 WIB</span>
           ) : (
-            <input type="time" defaultValue="13:50" className="rounded-xl border border-control bg-white px-3 py-2 font-mono text-sm" />
+            <TimePicker value={props.time} onChange={props.setTime} />
           )}
         </div>
       </div>
 
       <div className="space-y-3">
         <div className="flex items-center justify-between">
-          <SectionTitle>Foto bukti</SectionTitle>
-          <span className="font-mono text-xs text-ink-2">2 dari 4</span>
+          <SectionTitle>Foto atau video bukti</SectionTitle>
+          <span className="text-xs font-semibold text-ink-2">2 dari 4</span>
         </div>
         <div className="grid grid-cols-3 gap-2.5">
-          <div className="relative h-[104px] overflow-hidden rounded-2xl">
+          <div className="relative h-[104px] overflow-hidden md:h-[150px] rounded-2xl">
             <Image src="/photos/sebangau-rawa.jpg" alt="Foto 1 (simulasi)" fill sizes="200px" className="object-cover" />
             <span className="absolute right-2 top-2 grid h-6 w-6 place-items-center rounded-full bg-leaf text-white">
               <Icon name="check" size={14} strokeWidth={3} />
             </span>
           </div>
-          <div className="relative h-[104px] overflow-hidden rounded-2xl">
+          <div className="relative h-[104px] overflow-hidden md:h-[150px] rounded-2xl">
             <Image src="/photos/sebangau-peat-dome.jpg" alt="Foto 2 (simulasi), sedang diunggah" fill sizes="200px" className="object-cover" />
             <span className="absolute inset-0 bg-ink/45" />
             <span className="absolute inset-x-2.5 bottom-2.5">
@@ -236,39 +253,156 @@ function StepObservation(props: {
               </span>
             </span>
           </div>
-          <button type="button" className="flex h-[104px] flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-leaf bg-tint text-xs font-bold text-leaf">
+          <button type="button" className="flex h-[104px] md:h-[150px] flex-col items-center justify-center gap-1.5 rounded-2xl border-[1.5px] border-dashed border-leaf bg-tint text-xs font-bold text-leaf">
             <Icon name="camera" size={24} />
-            Tambah foto
+            Tambah foto/video
           </button>
         </div>
         <p className="flex items-center gap-2.5 rounded-2xl bg-sun-soft p-3 text-[13px] font-semibold text-[#6b4a00]">
           <Icon name="alert" size={20} className="shrink-0 text-pending" />
-          Ambil foto dari tempat aman. Jangan mendekati api atau asap tebal.
+          Ambil foto atau video dari tempat aman. Jangan mendekati api atau asap tebal.
         </p>
       </div>
 
       <label className="block space-y-3">
         <SectionTitle>Ceritakan singkat</SectionTitle>
-        <textarea
-          value={props.note}
-          onChange={(e) => props.setNote(e.target.value)}
-          rows={3}
-          className="w-full rounded-2xl border-[1.5px] border-control bg-white p-3.5 text-[15px] font-medium leading-relaxed outline-none focus:border-leaf"
-        />
+        <span className="relative block">
+          <textarea
+            value={props.note}
+            onChange={(e) => props.setNote(limitWords(e.target.value, MAX_WORDS))}
+            rows={4}
+            className="block w-full resize-none rounded-2xl border-[1.5px] border-control bg-white p-3.5 pb-8 text-[15px] font-medium leading-relaxed outline-none focus:border-leaf"
+          />
+          <span
+            className={`pointer-events-none absolute bottom-2.5 right-3.5 text-xs font-semibold ${countWords(props.note) >= MAX_WORDS ? "text-fire" : "text-stale"}`}
+            aria-live="polite"
+          >
+            {countWords(props.note)}/{MAX_WORDS} kata
+          </span>
+        </span>
       </label>
     </>
   );
 }
 
+const HOURS = Array.from({ length: 24 }, (_, i) => String(i).padStart(2, "0"));
+const MINUTES = Array.from({ length: 60 }, (_, i) => String(i).padStart(2, "0"));
+
+function TimePicker({ value, onChange }: { value: string; onChange: (v: string) => void }) {
+  const [open, setOpen] = useState(false);
+  const rootRef = useRef<HTMLDivElement>(null);
+  const [h, m] = value.split(":");
+
+  useEffect(() => {
+    if (!open) return;
+    const onDown = (e: PointerEvent) => {
+      if (!rootRef.current?.contains(e.target as Node)) setOpen(false);
+    };
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && setOpen(false);
+    document.addEventListener("pointerdown", onDown);
+    document.addEventListener("keydown", onKey);
+    // Gulir kolom supaya jam/menit terpilih ada di tengah
+    rootRef.current?.querySelectorAll<HTMLElement>("[data-selected=true]").forEach((el) => {
+      const col = el.parentElement!;
+      col.scrollTop = el.offsetTop - col.clientHeight / 2 + el.clientHeight / 2;
+    });
+    return () => {
+      document.removeEventListener("pointerdown", onDown);
+      document.removeEventListener("keydown", onKey);
+    };
+  }, [open]);
+
+  const column = (items: string[], current: string, pick: (v: string) => void, label: string) => (
+    <div className="relative h-56 w-16 overflow-y-auto overscroll-contain py-1 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="listbox" aria-label={label}>
+      {items.map((v) => {
+        const on = v === current;
+        return (
+          <button
+            key={v}
+            type="button"
+            role="option"
+            aria-selected={on}
+            data-selected={on}
+            onClick={() => pick(v)}
+            className={`mx-auto my-0.5 block h-9 w-12 rounded-xl text-[15px] transition ${on ? "bg-leaf font-extrabold text-white" : "font-semibold text-ink hover:bg-tint hover:text-leaf"}`}
+          >
+            {v}
+          </button>
+        );
+      })}
+    </div>
+  );
+
+  return (
+    <div ref={rootRef} className="relative">
+      <button
+        type="button"
+        onClick={() => setOpen((o) => !o)}
+        aria-haspopup="listbox"
+        aria-expanded={open}
+        className={`flex items-center gap-2 rounded-full border-[1.5px] bg-white px-4 py-2 text-sm font-bold transition ${open ? "border-leaf text-leaf" : "border-line text-ink hover:border-leaf"}`}
+      >
+        {value} WIB
+        <Icon name="chevronRight" size={16} className={`transition-transform ${open ? "-rotate-90" : "rotate-90"}`} />
+      </button>
+      {open && (
+        <div className="absolute left-0 top-full z-30 mt-2 rounded-[20px] border border-line bg-white p-2 shadow-[0_12px_32px_-12px_rgb(19_38_27/0.25)]">
+          <div className="flex items-center px-1 pb-1 pt-0.5 text-[11px] font-bold uppercase tracking-wide text-stale">
+            <span className="w-16 text-center">Jam</span>
+            <span className="w-3" />
+            <span className="w-16 text-center">Menit</span>
+          </div>
+          <div className="relative flex items-center">
+            <span className="pointer-events-none absolute inset-x-0 top-0 z-10 h-6 rounded-t-xl bg-gradient-to-b from-white to-transparent" />
+            <span className="pointer-events-none absolute inset-x-0 bottom-0 z-10 h-6 rounded-b-xl bg-gradient-to-t from-white to-transparent" />
+            {column(HOURS, h, (v) => onChange(`${v}:${m}`), "Jam")}
+            <span className="w-3 text-center text-lg font-extrabold text-stale">:</span>
+            {column(MINUTES, m, (v) => onChange(`${h}:${v}`), "Menit")}
+          </div>
+          <button type="button" onClick={() => setOpen(false)} className="btn-primary mt-2 w-full py-2 text-sm font-bold">
+            Selesai
+          </button>
+        </div>
+      )}
+    </div>
+  );
+}
+
+const MAX_WORDS = 500;
+
+function countWords(text: string) {
+  const t = text.trim();
+  return t ? t.split(/\s+/).length : 0;
+}
+
+function limitWords(text: string, max: number) {
+  if (countWords(text) <= max) return text;
+  const parts = text.split(/(\s+)/);
+  let n = 0;
+  let out = "";
+  for (const part of parts) {
+    if (part.trim()) {
+      if (n === max) break;
+      n++;
+    }
+    out += part;
+  }
+  return out.trimEnd();
+}
+
 function StepLocation({
   locMode,
   setLocMode,
+  direction,
+  setDirection,
   pin,
   onPinChange,
   showMap,
 }: {
   locMode: "titik" | "arah";
   setLocMode: (v: "titik" | "arah") => void;
+  direction: string;
+  setDirection: (v: string) => void;
   pin: LngLat;
   onPinChange: (v: LngLat) => void;
   showMap: boolean;
@@ -304,9 +438,15 @@ function StepLocation({
       {locMode === "arah" && (
         <div className="rounded-[18px] border border-line bg-white p-4">
           <p className="text-sm font-extrabold">Arah asap dari posisimu</p>
-          <div className="mt-3 grid grid-cols-4 gap-2">
-            {["Utara", "Timur", "Selatan", "Barat", "Timur laut", "Tenggara", "Barat daya", "Tidak tahu"].map((d) => (
-              <button key={d} type="button" className={d === "Timur laut" ? "chip-active justify-center px-2 text-xs" : "chip justify-center px-2 text-xs"}>
+          <div className="mt-3 grid grid-cols-3 gap-2">
+            {["Utara", "Timur laut", "Timur", "Tenggara", "Selatan", "Barat daya", "Barat", "Barat laut", "Tidak tahu"].map((d) => (
+              <button
+                key={d}
+                type="button"
+                onClick={() => setDirection(d)}
+                aria-pressed={direction === d}
+                className={direction === d ? "chip-active justify-center px-2 text-xs" : "chip justify-center px-2 text-xs"}
+              >
                 {d}
               </button>
             ))}
@@ -322,7 +462,7 @@ function StepLocation({
         <Icon name="pin" size={22} className="shrink-0 text-leaf" />
         <div className="flex-1">
           <p className="text-[15px] font-extrabold">{moved ? "Titik yang kamu pilih" : "Sekitar Pulang Pisau, Kalimantan Tengah"}</p>
-          <p className="font-mono text-xs text-ink-2">{formatLngLat(pin)} · area ±1 km</p>
+          <p className="text-xs font-medium text-ink-2">{formatLngLat(pin)} · area ±1 km</p>
         </div>
         <button type="button" onClick={() => onPinChange([focus.lon, focus.lat])} className="text-sm font-bold text-leaf">
           Reset
@@ -374,6 +514,8 @@ function formatLngLat([lon, lat]: LngLat) {
 }
 
 function StepReview(props: {
+  time: string;
+  direction: string;
   indication: Indication;
   note: string;
   locMode: "titik" | "arah";
@@ -384,27 +526,27 @@ function StepReview(props: {
   related: boolean;
 }) {
   const rows = [
-    ["Pengamatan", `${props.indication === "keduanya" ? "Asap dan api" : props.indication === "api" ? "Api" : "Asap"} · 14:32 WIB`],
-    ["Lokasi", props.locMode === "titik" ? "Titik perkiraan · ±1 km" : "Arah dari posisimu · timur laut"],
+    ["Pengamatan", `${props.indication === "keduanya" ? "Asap dan api" : props.indication === "api" ? "Api" : "Asap"} · ${props.time} WIB`],
+    ["Lokasi", props.locMode === "titik" ? "Titik perkiraan · ±1 km" : props.direction === "Tidak tahu" ? "Posisimu · arah tidak diketahui" : `Arah dari posisimu · ${props.direction.toLowerCase()}`],
   ];
   return (
     <>
       {!props.related && (
-        <div className="rounded-[18px] border-[1.5px] border-support bg-support-soft p-4">
-          <p className="text-[15px] font-extrabold text-[#3f2a66]">Ada kejadian serupa 1,2 km dari titikmu</p>
-          <p className="mt-1 text-[13px] font-medium text-[#4b3a6e]">Indikasi asap dan api di sekitar Pulang Pisau · 12 mnt lalu</p>
+        <div className="rounded-[18px] border-[1.5px] border-leaf bg-tint p-4">
+          <p className="text-[15px] font-extrabold text-forest">Ada kejadian serupa 1,2 km dari titikmu</p>
+          <p className="mt-1 text-[13px] font-medium text-ink-2">Indikasi asap dan api di sekitar Pulang Pisau · 12 mnt lalu</p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
               onClick={() => props.setMergeChoice("gabung")}
-              className={`btn flex-1 py-2.5 text-[13px] ${props.mergeChoice === "gabung" ? "bg-support text-white" : "border border-support bg-white text-support-ink"}`}
+              className={`btn flex-1 py-2.5 text-[13px] ${props.mergeChoice === "gabung" ? "bg-leaf text-white" : "border border-leaf bg-white text-leaf hover:bg-tint"}`}
             >
               Tambahkan ke sini
             </button>
             <button
               type="button"
               onClick={() => props.setMergeChoice("baru")}
-              className={`btn flex-1 py-2.5 text-[13px] ${props.mergeChoice === "baru" ? "bg-support text-white" : "border border-support bg-white text-support-ink"}`}
+              className={`btn flex-1 py-2.5 text-[13px] ${props.mergeChoice === "baru" ? "bg-leaf text-white" : "border border-leaf bg-white text-leaf hover:bg-tint"}`}
             >
               Tetap laporan baru
             </button>
@@ -420,7 +562,7 @@ function StepReview(props: {
           </div>
         ))}
         <div className="flex items-center justify-between text-sm">
-          <span className="font-semibold text-ink-2">Foto</span>
+          <span className="font-semibold text-ink-2">Foto/video</span>
           <span className="flex gap-1.5">
             {["/photos/sebangau-rawa.jpg", "/photos/sebangau-peat-dome.jpg"].map((src) => (
               <span key={src} className="relative h-12 w-12 overflow-hidden rounded-[10px]">
@@ -430,16 +572,6 @@ function StepReview(props: {
           </span>
         </div>
         <p className="text-sm font-medium leading-relaxed">“{props.note}”</p>
-      </div>
-      <div className="grid grid-cols-2 gap-2.5">
-        <div className="rounded-2xl bg-tint p-3.5">
-          <p className="text-[13px] font-extrabold text-leaf">Tampil publik</p>
-          <p className="mt-1.5 text-xs font-medium leading-5">Foto tanpa EXIF<br />Titik perkiraan<br />Waktu pengamatan</p>
-        </div>
-        <div className="rounded-2xl bg-[#f3f1ee] p-3.5">
-          <p className="text-[13px] font-extrabold text-[#57524c]">Dilindungi</p>
-          <p className="mt-1.5 text-xs font-medium leading-5">Nama & akunmu<br />Lokasi HP-mu<br />Foto asli</p>
-        </div>
       </div>
       <label className="flex cursor-pointer gap-3 text-[13px] font-semibold leading-relaxed">
         <input type="checkbox" checked={props.agree} onChange={(e) => props.setAgree(e.target.checked)} className="mt-0.5 h-5 w-5 shrink-0 accent-[#1e8a4c]" />
