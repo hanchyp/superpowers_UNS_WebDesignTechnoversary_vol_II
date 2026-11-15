@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { AppBar, SiteFooter } from "@/components/Chrome";
+import { EdukasiBasics } from "@/components/EdukasiBasics";
 import { Icon } from "@/components/Icon";
 import { RegionalMap } from "@/components/Map";
 import { incidents } from "@/lib/incidents";
@@ -10,29 +11,6 @@ export const metadata: Metadata = {
   title: "Edukasi Karhutla",
   description: "Kenali kebakaran hutan dan lahan, pahami titik panas, dan jelajahi contoh laporan di peta WANA.",
 };
-
-const topics = [
-  {
-    title: "Apa itu karhutla?",
-    icon: "flame",
-    color: "bg-sun",
-    body: "Karhutla adalah singkatan dari kebakaran hutan dan lahan. Kebakaran bisa terjadi di kawasan berhutan maupun di lahan terbuka. Saat vegetasi kering terbakar, api dapat menjalar ke area sekitarnya dan asap bisa terbawa angin melampaui lokasi kebakaran.",
-  },
-  {
-    title: "Mengapa gambut sulit dipadamkan?",
-    icon: "layers",
-    color: "bg-moss",
-    body: "Gambut terbentuk dari sisa tumbuhan yang menumpuk. Ketika mengering dan terbakar, bara bisa merambat di bawah permukaan. Padamnya api yang terlihat di permukaan belum cukup untuk memastikan bara di bawahnya sudah padam.",
-  },
-  {
-    title: "Apa arti titik panas di peta?",
-    icon: "locate",
-    color: "bg-sky",
-    body: "Titik panas atau hotspot menandai area pada citra satelit yang suhunya melewati ambang tertentu. Temuan ini menjadi petunjuk awal untuk memeriksa kemungkinan kebakaran di lapangan.",
-  },
-] as const;
-
-const sourceUrl = "https://pkgppkl.menlhk.go.id/v0/wp-content/uploads/2023/03/SOP_Forest-and-Land-Fire-Control.pdf";
 
 export default function EdukasiPage() {
   // Data simulasi diurutkan dari pembaruan paling baru di lib/incidents.ts.
@@ -58,22 +36,8 @@ export default function EdukasiPage() {
           </div>
         </header>
 
-        <section aria-labelledby="bacaan" className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20">
-          <h2 id="bacaan" className="text-3xl font-extrabold tracking-tight md:text-4xl">Dasar-dasar karhutla</h2>
-          <div className="mt-7 grid gap-4 md:grid-cols-3">
-            {topics.map((topic) => (
-              <article key={topic.title} className="rounded-3xl border border-line bg-white p-6">
-                <span className={`grid h-12 w-12 place-items-center rounded-2xl text-forest ${topic.color}`}>
-                  <Icon name={topic.icon} size={24} />
-                </span>
-                <h3 className="mt-5 text-xl font-extrabold leading-tight">{topic.title}</h3>
-                <p className="mt-3 leading-relaxed text-ink-2">{topic.body}</p>
-              </article>
-            ))}
-          </div>
-          <a href={sourceUrl} className="mt-5 inline-block text-sm font-semibold text-forest underline underline-offset-4">
-            Sumber bacaan dari KLHK (PDF)
-          </a>
+        <section aria-labelledby="bacaan" className="bg-gradient-to-b from-paper via-tint to-paper">
+          <EdukasiBasics />
         </section>
 
         <section id="kejadian-terbaru" aria-labelledby="judul-kejadian" className="scroll-mt-20 bg-tint py-14 md:py-20">
