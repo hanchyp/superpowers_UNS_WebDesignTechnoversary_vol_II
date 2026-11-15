@@ -5,7 +5,6 @@ import Link from "next/link";
 import { useEffect, useState } from "react";
 import { AppBar, MobileTabBar } from "@/components/Chrome";
 import { Icon } from "@/components/Icon";
-import { EvidenceLadder } from "@/components/Status";
 
 export type ReportState = "diperiksa" | "terbit" | "perlu-dilengkapi";
 
@@ -54,22 +53,24 @@ function Checking({ reportId, state }: { reportId: string; state: Exclude<Report
           </span>
           <div>
             <h1 className="text-xl font-extrabold tracking-[-0.02em] md:text-[28px]">Status laporan</h1>
-            <p className="mt-1 font-mono text-xs font-medium text-ink-2 md:text-[13px]">
+            <p className="mt-1 text-xs font-medium text-ink-2 md:text-[13px]">
               No. {reportId} · Indikasi asap · Pulang Pisau · dikirim 14:32 WIB
             </p>
           </div>
         </header>
 
-        <ol className="mt-7 flex flex-col gap-0 md:mt-9 md:flex-row md:items-start">
-          <Step state="done" title="Terkirim" note="2 foto terunggah · 14:32 WIB" />
-          <Connector done />
-          <Step
-            state={needsFix ? "warn" : "active"}
-            title={needsFix ? "Perlu dilengkapi" : "Diperiksa AI"}
-            note={needsFix ? "Diperiksa 14:33 WIB" : "Biasanya kurang dari 1 menit"}
-          />
-          <Connector />
-          <Step state="todo" title="Tampil di peta" note="Setelah lolos pemeriksaan awal" />
+        <ol className="mt-7 flex md:mt-9" aria-label="Tahap laporan">
+          {[
+            { state: "done" as const, title: "Terkirim", note: "14:32 WIB" },
+            {
+              state: needsFix ? ("warn" as const) : ("active" as const),
+              title: needsFix ? "Perlu dilengkapi" : "Diperiksa AI",
+              note: needsFix ? "Diperiksa 14:33 WIB" : "Kurang dari 1 menit",
+            },
+            { state: "todo" as const, title: "Tampil di peta", note: "Setelah lolos" },
+          ].map((st, i, all) => (
+            <Step key={st.title} {...st} last={i === all.length - 1} />
+          ))}
         </ol>
 
         <div className="mt-6 rounded-[20px] bg-[#f7faf5] p-5 md:mt-8 md:p-6">
@@ -77,7 +78,7 @@ function Checking({ reportId, state }: { reportId: string; state: Exclude<Report
             <p className={`text-lg font-extrabold ${needsFix ? "text-[#8a5a00]" : "text-ai-ink"}`}>
               {needsFix ? "Pemeriksaan butuh bantuanmu" : "Sedang diperiksa…"}
             </p>
-            {!needsFix && <span className="font-mono text-xs text-ink-2">biasanya &lt; 1 menit</span>}
+            {!needsFix && <span className="text-xs font-semibold text-ink-2">biasanya &lt; 1 menit</span>}
           </div>
           <ul className="mt-3 space-y-2">
             {checks.map((c) => (
@@ -100,14 +101,13 @@ function Checking({ reportId, state }: { reportId: string; state: Exclude<Report
           <Icon name="info" size={19} className="shrink-0" />
           {needsFix
             ? "Ini bukan berarti pengamatanmu salah. Coba ambil foto yang lebih terang, atau kirim ke moderator untuk ditinjau manual."
-            : "Laporanmu belum tampil di peta sampai pemeriksaan selesai. Kamu boleh menutup halaman ini; statusnya tersimpan di Laporan Saya."}
+            : "Laporanmu belum tampil di peta sampai pemeriksaan selesai."}
         </p>
 
         <div className="mt-6 flex flex-col gap-2.5 sm:flex-row sm:items-center">
           {needsFix ? (
             <>
-              <Link href="/lapor" className="btn-report px-6 py-3.5 text-base font-extrabold">
-                <Icon name="camera" size={20} />
+              <Link href="/lapor" className="btn-report px-6 py-3.5 text-base font-extrabold shadow-none hover:translate-y-0 active:translate-y-0">
                 Perbaiki foto
               </Link>
               <button type="button" className="px-4 py-3 text-[15px] font-bold text-leaf underline">
@@ -130,84 +130,70 @@ function Checking({ reportId, state }: { reportId: string; state: Exclude<Report
   );
 }
 
-function Step({ state, title, note }: { state: "done" | "active" | "warn" | "todo"; title: string; note: string }) {
+function Step({ state, title, note, last }: { state: "done" | "active" | "warn" | "todo"; title: string; note: string; last: boolean }) {
   const circle = {
     done: "bg-leaf text-white",
-    active: "border-[3px] border-ai bg-ai-soft animate-pulse-ring",
-    warn: "border-[3px] border-pending bg-pending-soft",
-    todo: "border-2 border-[#c9d6c3] bg-white text-[#9aa79e]",
+    active: "border-2 border-leaf bg-white",
+    warn: "border-2 border-pending bg-white",
+    todo: "border-2 border-line bg-white",
   }[state];
-  const titleColor = { done: "text-ink", active: "text-ai-ink", warn: "text-[#8a5a00]", todo: "text-stale" }[state];
+  const titleColor = { done: "font-semibold text-ink-2", active: "font-bold text-ink", warn: "font-bold text-[#8a5a00]", todo: "font-medium text-stale" }[state];
   return (
-    <li className="flex gap-4 md:w-36 md:shrink-0 md:flex-col md:items-center md:gap-2 md:text-center">
-      <span className={`grid h-9 w-9 shrink-0 place-items-center rounded-full md:h-11 md:w-11 ${circle}`}>
-        {state === "done" && <Icon name="check" size={18} strokeWidth={3} />}
-        {state === "active" && <span className="h-3 w-3 rounded-full bg-ai" />}
-        {state === "warn" && <span className="h-3 w-3 rounded-full bg-pending" />}
-        {state === "todo" && <Icon name="map" size={18} />}
+    <li className="relative flex flex-1 flex-col items-center gap-2 text-center" aria-current={state === "active" || state === "warn" ? "step" : undefined}>
+      {!last && (
+        <span
+          className={`absolute left-[calc(50%+20px)] right-[calc(-50%+20px)] top-[13px] h-[2px] rounded-full ${state === "done" ? "bg-leaf" : "bg-line"}`}
+          aria-hidden="true"
+        />
+      )}
+      <span className={`grid h-7 w-7 place-items-center rounded-full ${circle}`}>
+        {state === "done" && <Icon name="check" size={14} strokeWidth={3} />}
+        {state === "active" && <span className="h-2.5 w-2.5 rounded-full bg-leaf" />}
+        {state === "warn" && <span className="h-2.5 w-2.5 rounded-full bg-pending" />}
       </span>
-      <span className="pb-1 pt-1.5 md:pt-0">
-        <span className={`block text-base font-extrabold ${titleColor}`}>{title}</span>
-        <span className="block text-[13px] font-medium text-ink-2">{note}</span>
+      <span>
+        <span className={`block text-[13px] md:text-sm ${titleColor}`}>{title}</span>
+        <span className="block text-xs font-medium text-stale">{note}</span>
       </span>
-    </li>
-  );
-}
-
-function Connector({ done = false }: { done?: boolean }) {
-  return (
-    <li aria-hidden="true" className="ml-[17px] h-7 w-[3px] md:ml-0 md:mt-[21px] md:h-[3px] md:w-auto md:flex-1">
-      <span className={`block h-full w-full rounded-full ${done ? "bg-leaf" : "bg-line"}`} />
     </li>
   );
 }
 
 function Published() {
   return (
-    <main className="flex flex-1 justify-center px-4 pb-32 pt-6 md:pt-12">
-      <section className="w-full max-w-[560px] overflow-hidden rounded-[32px] border-2 border-forest bg-white shadow-sticker">
-        <div className="relative h-64 overflow-hidden bg-sprout md:h-72">
-          <span className="absolute -bottom-24 -left-16 h-56 w-80 rounded-full bg-moss" />
-          <span className="absolute -bottom-28 -right-20 h-56 w-80 rounded-full bg-[#7fc56b]" />
-          <svg className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-[56%] animate-[spin_40s_linear_infinite]" width="220" height="220" viewBox="0 0 220 220" aria-hidden="true">
-            <polygon
-              fill="#ffe08a"
-              points={Array.from({ length: 24 }, (_, i) => {
-                const a = (i * Math.PI) / 12;
-                const r = i % 2 === 0 ? 110 : 80;
-                return `${110 + r * Math.cos(a)},${110 + r * Math.sin(a)}`;
-              }).join(" ")}
-            />
-          </svg>
-          <span className="absolute left-1/2 top-1/2 grid h-32 w-32 -translate-x-1/2 -translate-y-[56%] place-items-center rounded-full border-[3px] border-forest bg-sun text-forest shadow-sticker">
-            <Icon name="check" size={60} strokeWidth={2.6} />
-          </span>
-          <span className="absolute right-10 top-8 rotate-6 rounded-full border-2 border-forest bg-white px-3 py-1 text-sm font-extrabold text-forest">
-            Terbit!
-          </span>
+    <main className="flex flex-1 justify-center px-4 pb-32 pt-6 md:pt-10">
+      <section className="relative flex w-full max-w-[680px] flex-col items-center overflow-hidden rounded-[32px] bg-white px-6 pb-8 pt-10 md:px-12 text-center shadow-soft">
+        {/* Maskot */}
+        <div className="relative animate-badge-pop">
+          <Image src="/mascot/care.png" alt="Maskot orang utan WANA mengacungkan jempol" width={210} height={210} sizes="210px" className="relative z-10 h-[210px] w-[210px] object-contain" />
+          <span className="absolute bottom-2 left-1/2 h-4 w-32 -translate-x-1/2 rounded-[50%] bg-forest/15 blur-[2px]" aria-hidden="true" />
         </div>
-        <div className="flex flex-col items-center px-6 pb-7 pt-7 text-center">
-          <h1 className="max-w-[380px] text-[26px] font-extrabold leading-tight tracking-[-0.02em]">
-            Terima kasih! Pengamatanmu sudah tampil di peta.
-          </h1>
-          <p className="mt-2 max-w-[340px] text-[15px] font-medium text-ink-2">
-            Warga sekitar kini bisa melihat dan melengkapi pengamatanmu.
-          </p>
-          <div className="mt-5 w-full rounded-[18px] border border-line p-4 text-left">
-            <p className="text-[15px] font-extrabold">Indikasi asap di sekitar Pulang Pisau</p>
-            <EvidenceLadder incident={{ review: "lolos-ai", supportCount: 0 }} labels="none" className="mt-3" />
-            <p className="mt-2 text-[13px] font-semibold text-ai-ink">Lolos pemeriksaan awal AI. Kejadian belum terverifikasi.</p>
-          </div>
-          <div className="mt-6 flex w-full flex-col gap-2.5">
-            <Link href="/kejadian/pulang-pisau" className="btn border-2 border-forest bg-leaf py-3.5 text-base font-extrabold text-white">
-              Lihat kejadian di peta
-            </Link>
-            <button type="button" className="btn-outline py-3.5 text-[15px]">
-              <Icon name="share" size={18} />
-              Bagikan ke warga sekitar
+
+        <h1 className="relative mt-6 text-[28px] font-extrabold leading-tight tracking-[-0.02em]">
+          Laporan terbit, terima kasih!
+        </h1>
+        <p className="relative mt-2 max-w-[460px] text-[15px] md:text-base font-medium text-ink-2">
+          Pengamatanmu sudah tampil di peta. Warga sekitar kini bisa melihat dan melengkapinya.
+        </p>
+
+        <div className="relative mt-8 flex w-full items-center gap-3.5 rounded-[20px] bg-[#f3f5f1] p-4 text-left">
+          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-leaf">
+            <Icon name="share" size={20} />
+          </span>
+          <span className="min-w-0 flex-1">
+            <span className="block text-[15px] font-extrabold">Ajak warga sekitar ikut memantau</span>
+            <button type="button" className="mt-0.5 text-[13px] font-bold text-leaf underline">
+              Bagikan laporan
             </button>
-          </div>
+          </span>
         </div>
+
+        <Link href="/kejadian/pulang-pisau" className="btn relative mt-5 w-full bg-forest py-4 text-base font-extrabold text-white hover:bg-forest-deep">
+          Lihat kejadian di peta
+        </Link>
+        <Link href="/" className="relative mt-3 py-2 text-[15px] font-bold text-ink hover:text-leaf">
+          Kembali ke beranda
+        </Link>
       </section>
     </main>
   );
