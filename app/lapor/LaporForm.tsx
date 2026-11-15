@@ -392,7 +392,7 @@ function StepReview(props: {
       {!props.related && (
         <div className="rounded-[18px] border-[1.5px] border-support bg-support-soft p-4">
           <p className="text-[15px] font-extrabold text-[#3f2a66]">Ada kejadian serupa 1,2 km dari titikmu</p>
-          <p className="mt-1 text-[13px] font-medium text-[#4b3a6e]">Indikasi asap dan api di sekitar Pulang Pisau · 12 mnt lalu · didukung 3 warga</p>
+          <p className="mt-1 text-[13px] font-medium text-[#4b3a6e]">Indikasi asap dan api di sekitar Pulang Pisau · 12 mnt lalu</p>
           <div className="mt-3 flex gap-2">
             <button
               type="button"
