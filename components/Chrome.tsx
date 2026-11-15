@@ -92,7 +92,7 @@ export function EmergencyStrip() {
             </p>
           </div>
         </div>
-        <a href="tel:112" className="btn border-2 border-forest bg-fire px-6 py-3.5 text-[17px] font-extrabold text-white shadow-sticker">
+        <a href="tel:112" className="btn border-2 border-forest bg-fire px-6 py-3.5 text-[17px] font-extrabold text-white">
           <Icon name="phone" size={20} />
           Hubungi 112
         </a>

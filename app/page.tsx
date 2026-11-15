@@ -140,7 +140,7 @@ export default function Home() {
               </li>
             ))}
           </ol>
-          <Link href="/pantau" className="btn mt-10 w-full border-2 border-forest bg-leaf px-8 py-4 text-lg font-extrabold text-white shadow-sticker sm:w-auto">
+          <Link href="/pantau" className="btn mt-10 w-full border-2 border-forest bg-leaf px-8 py-4 text-lg font-extrabold text-white sm:w-auto">
             Mulai pantau wilayahmu
           </Link>
         </div>
