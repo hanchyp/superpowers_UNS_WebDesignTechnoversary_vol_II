@@ -61,14 +61,14 @@ export function Tag({ kind, children }: { kind: keyof typeof tone; children: Rea
   );
 }
 
-export function IncidentTags({ incident }: { incident: Incident }) {
+export function IncidentTags({ incident, showEvidence = true }: { incident: Incident; showEvidence?: boolean }) {
   return (
     <div className="flex flex-wrap gap-1.5">
-      {incident.review === "lolos-ai" ? (
+      {showEvidence && (incident.review === "lolos-ai" ? (
         <Tag kind="ai">Lolos AI</Tag>
       ) : (
         <Tag kind="support">Didukung {incident.supportCount} warga</Tag>
-      )}
+      ))}
       {incident.stale ? (
         <Tag kind="stale">Belum diperbarui {incident.updatedAgo.replace(" lalu", "")}</Tag>
       ) : incident.condition === "berlangsung" ? (

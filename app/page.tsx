@@ -79,8 +79,7 @@ export default function Home() {
         <div className="mx-auto max-w-[1312px]">
           <div className="flex items-end justify-between px-5 md:px-8">
             <div>
-              <SimBadge />
-              <h2 data-landing-reveal="text" className="mt-3 text-[26px] font-extrabold tracking-[-0.03em] md:text-[46px]">Kejadian terbaru</h2>
+              <h2 data-landing-reveal="text" className="text-[26px] font-extrabold tracking-[-0.03em] md:text-[46px]">Kejadian terbaru</h2>
             </div>
             <Link href="/pantau" className="btn border-2 border-forest bg-white px-5 py-3 text-[15px] text-forest">
               <span className="hidden sm:inline">Buka peta lengkap</span>
@@ -88,22 +87,22 @@ export default function Home() {
               <Icon name="arrowRight" size={18} />
             </Link>
           </div>
-          <div className="mt-7 flex snap-x gap-4 overflow-x-auto px-5 pb-3 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-8">
+          <div className="mt-7 flex snap-x gap-4 overflow-x-auto px-5 pb-8 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-8">
             {recent.map((i, index) => (
               <Link
                 key={i.id}
                 data-landing-reveal="slide"
                 data-motion-order={index}
                 href={`/kejadian/${i.id}`}
-                className="sticker-card w-[280px] shrink-0 snap-start overflow-hidden transition hover:-translate-y-1 md:w-auto"
+                className={`${landingCardStyle} w-[280px] shrink-0 snap-start overflow-hidden bg-white transition hover:-translate-y-1 md:w-auto`}
               >
                 <RegionalMap focus={i} items={[i]} showTowns={false} className="h-36 border-b-2 border-forest md:h-48" />
                 <div className="flex flex-col gap-2.5 p-4 md:p-5">
-                  <p className="eyebrow">
+                  <p className="font-sans text-xs font-semibold text-earth">
                     {i.region} · {i.updatedAgo}
                   </p>
                   <h3 className="text-base font-extrabold leading-snug md:text-xl">{i.title}</h3>
-                  <IncidentTags incident={i} />
+                  <IncidentTags incident={i} showEvidence={false} />
                 </div>
               </Link>
             ))}
