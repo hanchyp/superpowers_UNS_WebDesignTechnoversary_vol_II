@@ -7,9 +7,9 @@ import { Icon } from "./Icon";
 
 const links = [
   { href: "/pantau", label: "Pantau Wilayah" },
-  { href: "#edukasi", label: "Edukasi" },
-  { href: "#cara-kerja", label: "Cara kerja" },
+  { href: "/edukasi", label: "Edukasi" },
   { href: "#cerita", label: "Tentang" },
+  { href: "/kontak", label: "Kontak" },
 ];
 
 export function LandingNav() {

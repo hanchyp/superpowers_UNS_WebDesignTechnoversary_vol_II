@@ -1,0 +1,109 @@
+import type { Metadata } from "next";
+import Image from "next/image";
+import Link from "next/link";
+import { AppBar, SiteFooter } from "@/components/Chrome";
+import { Icon } from "@/components/Icon";
+import { RegionalMap } from "@/components/Map";
+import { incidents } from "@/lib/incidents";
+
+export const metadata: Metadata = {
+  title: "Edukasi Karhutla",
+  description: "Kenali kebakaran hutan dan lahan, pahami titik panas, dan jelajahi contoh laporan di peta WANA.",
+};
+
+const topics = [
+  {
+    title: "Apa itu karhutla?",
+    icon: "flame",
+    color: "bg-sun",
+    body: "Karhutla adalah singkatan dari kebakaran hutan dan lahan. Kebakaran bisa terjadi di kawasan berhutan maupun di lahan terbuka. Saat vegetasi kering terbakar, api dapat menjalar ke area sekitarnya dan asap bisa terbawa angin melampaui lokasi kebakaran.",
+  },
+  {
+    title: "Mengapa gambut sulit dipadamkan?",
+    icon: "layers",
+    color: "bg-moss",
+    body: "Gambut terbentuk dari sisa tumbuhan yang menumpuk. Ketika mengering dan terbakar, bara bisa merambat di bawah permukaan. Padamnya api yang terlihat di permukaan belum cukup untuk memastikan bara di bawahnya sudah padam.",
+  },
+  {
+    title: "Apa arti titik panas di peta?",
+    icon: "locate",
+    color: "bg-sky",
+    body: "Titik panas atau hotspot menandai area pada citra satelit yang suhunya melewati ambang tertentu. Temuan ini menjadi petunjuk awal untuk memeriksa kemungkinan kebakaran di lapangan.",
+  },
+] as const;
+
+const sourceUrl = "https://pkgppkl.menlhk.go.id/v0/wp-content/uploads/2023/03/SOP_Forest-and-Land-Fire-Control.pdf";
+
+export default function EdukasiPage() {
+  // Data simulasi diurutkan dari pembaruan paling baru di lib/incidents.ts.
+  const recent = incidents.slice(0, 3);
+
+  return (
+    <>
+      <AppBar active="edukasi" search={false} />
+      <main>
+        <header className="relative isolate overflow-hidden bg-forest-deep text-white">
+          <Image src="/photos/rawa-gambut-udara.jpg" alt="" fill sizes="100vw" className="-z-20 object-cover" />
+          <div className="absolute inset-0 -z-10 bg-forest-deep/80" />
+          <div className="mx-auto max-w-[1200px] px-5 py-20 md:px-8 md:py-28">
+            <h1 className="max-w-[720px] text-4xl font-extrabold leading-tight tracking-tight sm:text-5xl md:text-7xl">
+              Mengenal kebakaran hutan dan lahan
+            </h1>
+            <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/90">
+              Pelajari bagaimana karhutla menyebar, apa yang terjadi saat gambut terbakar, dan cara membaca titik panas.
+            </p>
+            <a href="#kejadian-terbaru" className="btn mt-7 bg-sun px-5 py-3 text-forest hover:bg-[#ffd666]">
+              Lihat kejadian terbaru <Icon name="arrowRight" size={18} />
+            </a>
+          </div>
+        </header>
+
+        <section aria-labelledby="bacaan" className="mx-auto max-w-[1200px] px-5 py-14 md:px-8 md:py-20">
+          <h2 id="bacaan" className="text-3xl font-extrabold tracking-tight md:text-4xl">Dasar-dasar karhutla</h2>
+          <div className="mt-7 grid gap-4 md:grid-cols-3">
+            {topics.map((topic) => (
+              <article key={topic.title} className="rounded-3xl border border-line bg-white p-6">
+                <span className={`grid h-12 w-12 place-items-center rounded-2xl text-forest ${topic.color}`}>
+                  <Icon name={topic.icon} size={24} />
+                </span>
+                <h3 className="mt-5 text-xl font-extrabold leading-tight">{topic.title}</h3>
+                <p className="mt-3 leading-relaxed text-ink-2">{topic.body}</p>
+              </article>
+            ))}
+          </div>
+          <a href={sourceUrl} className="mt-5 inline-block text-sm font-semibold text-forest underline underline-offset-4">
+            Sumber bacaan dari KLHK (PDF)
+          </a>
+        </section>
+
+        <section id="kejadian-terbaru" aria-labelledby="judul-kejadian" className="scroll-mt-20 bg-tint py-14 md:py-20">
+          <div className="mx-auto max-w-[1200px] px-5 md:px-8">
+            <div className="flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <h2 id="judul-kejadian" className="text-3xl font-extrabold tracking-tight md:text-4xl">Kejadian terbaru</h2>
+                <p className="mt-2 text-ink-2">Data simulasi untuk mencoba alur pemantauan di WANA.</p>
+              </div>
+              <Link href="/pantau" className="btn border border-forest bg-white px-5 py-3 text-forest hover:bg-sprout">
+                Buka peta lengkap <Icon name="arrowRight" size={18} />
+              </Link>
+            </div>
+            <ul className="mt-7 grid gap-4 md:grid-cols-3">
+              {recent.map((incident) => (
+                <li key={incident.id}>
+                  <Link href={`/kejadian/${incident.id}`} className="group block h-full overflow-hidden rounded-3xl border border-line bg-white hover:border-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
+                    <RegionalMap focus={incident} items={[incident]} showTowns={false} className="h-40 border-b border-line" />
+                    <div className="p-5">
+                      <p className="text-sm font-semibold text-ink-2">{incident.region} · {incident.updatedAgo}</p>
+                      <h3 className="mt-2 text-lg font-extrabold leading-snug group-hover:underline">{incident.title}</h3>
+                    </div>
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </section>
+      </main>
+      <SiteFooter />
+    </>
+  );
+}

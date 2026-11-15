@@ -5,12 +5,12 @@ import { Icon } from "./Icon";
 
 const navLinks = [
   { href: "/pantau", label: "Pantau Wilayah" },
-  { href: "/#cara-kerja", label: "Cara kerja" },
-  { href: "/#edukasi", label: "Edukasi" },
+  { href: "/edukasi", label: "Edukasi" },
+  { href: "/kontak", label: "Kontak" },
 ];
 
 /** Bar atas halaman alat (Pantau, Detail, Lapor, Status). */
-export function AppBar({ active, search = true }: { active?: "pantau"; search?: boolean }) {
+export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi" | "kontak"; search?: boolean }) {
   return (
     <header className="sticky top-0 z-40 border-b border-line bg-white/95 backdrop-blur">
       <div className="flex h-16 items-center gap-4 px-4 md:h-[72px] md:gap-7 md:px-7">
@@ -31,8 +31,9 @@ export function AppBar({ active, search = true }: { active?: "pantau"; search?: 
             <Link
               key={l.href}
               href={l.href}
+              aria-current={active && l.href === `/${active}` ? "page" : undefined}
               className={`whitespace-nowrap rounded-full px-3.5 py-2 text-[15px] font-semibold ${
-                active === "pantau" && l.href === "/pantau" ? "bg-sprout font-bold text-forest" : "text-ink hover:bg-tint"
+                active && l.href === `/${active}` ? "bg-sprout font-bold text-forest" : "text-ink hover:bg-tint"
               }`}
             >
               {l.label}
@@ -42,7 +43,7 @@ export function AppBar({ active, search = true }: { active?: "pantau"; search?: 
             Masuk
           </Link>
         </nav>
-        <Link href="/lapor" className="btn-report shrink-0 whitespace-nowrap px-4 py-2.5 text-[15px] shadow-sticker-sm">
+        <Link href="/lapor" className="btn-report shrink-0 whitespace-nowrap px-4 py-2.5 text-[15px]">
           <Icon name="plus" size={18} />
           <span className="hidden sm:inline">Laporkan pengamatan</span>
           <span className="sm:hidden">Lapor</span>
@@ -64,7 +65,7 @@ export function MobileTabBar({ active }: { active: "pantau" | "laporan" }) {
         Pantau
       </Link>
       <Link href="/lapor" className="flex w-24 flex-col items-center gap-1 text-xs font-bold text-ink">
-        <span className="grid h-[38px] w-14 place-items-center rounded-full border-2 border-forest bg-sun text-forest shadow-sticker-sm">
+        <span className="grid h-[38px] w-14 place-items-center rounded-full border-2 border-forest bg-sun text-forest">
           <Icon name="plus" size={22} />
         </span>
         Laporkan
@@ -112,7 +113,7 @@ export function SiteFooter() {
             <p className="text-3xl font-extrabold leading-tight tracking-[-0.03em] md:text-5xl md:leading-[1.15]">
               Hutan terjaga, mulai dari satu pengamatan kecil.
             </p>
-            <Link href="/lapor" className="btn-report mt-7 border-white px-6 py-3.5 text-[17px] shadow-none">
+            <Link href="/lapor" className="btn-report mt-7 border-white px-6 py-3.5 text-[17px]">
               <Icon name="plus" size={20} />
               Laporkan pengamatan
             </Link>
@@ -122,13 +123,12 @@ export function SiteFooter() {
               <li className="text-white/60">Jelajahi</li>
               <li><Link href="/pantau">Pantau Wilayah</Link></li>
               <li><Link href="/lapor">Laporkan</Link></li>
-              <li><Link href="/#edukasi">Edukasi</Link></li>
+              <li><Link href="/edukasi">Edukasi</Link></li>
             </ul>
             <ul>
               <li className="text-white/60">WANA</li>
-              <li><Link href="/#cara-kerja">Cara kerja</Link></li>
               <li>Tentang kami</li>
-              <li>Kontak</li>
+              <li><Link href="/kontak">Kontak</Link></li>
             </ul>
             <ul>
               <li className="text-white/60">Kebijakan</li>
