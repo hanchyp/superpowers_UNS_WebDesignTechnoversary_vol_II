@@ -81,9 +81,6 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
               <div className="relative overflow-hidden rounded-3xl">
                 <Image src="/photos/sebangau-rawa.jpg" alt="Foto pelapor (simulasi): asap di atas rawa gambut" fill priority sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
                 <span className="absolute left-[50%] top-[10%] h-44 w-52 rounded-full bg-[#ece9e3]/80 blur-3xl" aria-hidden="true" />
-                <span className="absolute bottom-3 left-3 rounded-full bg-ink/85 px-3.5 py-1.5 text-xs font-semibold text-white md:text-[13px]">
-                  Foto pelapor · simulasi · {incident.firstSeen} · EXIF lokasi dihapus
-                </span>
               </div>
               <div className="grid w-[110px] grid-rows-2 gap-3 md:w-[270px]">
                 <div className="relative overflow-hidden rounded-3xl">
