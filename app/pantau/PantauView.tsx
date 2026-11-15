@@ -1,22 +1,37 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
-import { SimBadge } from "@/components/Brand";
+import { useLayoutEffect, useRef, useState } from "react";
 import { AppBar, MobileTabBar } from "@/components/Chrome";
 import { Icon } from "@/components/Icon";
 import { INDONESIA_VIEW, LiveMap } from "@/components/LiveMap";
-import { EvidenceLadder, IncidentTags, IndicationGlyph, ladderText } from "@/components/Status";
+import { IncidentTags, IndicationGlyph } from "@/components/Status";
 import { featuredId, incidents, type Incident } from "@/lib/incidents";
 import { useIsDesktop } from "@/lib/useMediaQuery";
 
-const filters = ["Jenis", "Pemeriksaan", "Kondisi"];
+type StatusFilter = "semua" | "berlangsung" | "mereda" | "belum-diketahui" | "lama";
+
+const statusFilters: { value: StatusFilter; label: string }[] = [
+  { value: "semua", label: "Semua" },
+  { value: "berlangsung", label: "Masih berlangsung" },
+  { value: "mereda", label: "Mereda" },
+  { value: "belum-diketahui", label: "Belum diketahui" },
+  { value: "lama", label: "Info lama" },
+];
+
+function matchesFilter(i: Incident, f: StatusFilter) {
+  if (f === "semua") return true;
+  if (f === "lama") return i.stale;
+  return !i.stale && i.condition === f;
+}
 
 export function PantauView() {
   const isDesktop = useIsDesktop();
   const [selectedId, setSelectedId] = useState<string | undefined>(featuredId);
   const [view, setView] = useState<"peta" | "daftar">("peta");
-  const selected = incidents.find((i) => i.id === selectedId);
+  const [filter, setFilter] = useState<StatusFilter>("semua");
+  const shown = incidents.filter((i) => matchesFilter(i, filter));
+  const selected = shown.find((i) => i.id === selectedId);
 
   return (
     <div className="flex h-[100svh] flex-col overflow-hidden">
@@ -25,22 +40,16 @@ export function PantauView() {
         {/* Panel kiri (desktop) */}
         <aside className="hidden w-[420px] shrink-0 flex-col border-r border-line bg-white lg:flex">
           <div className="space-y-3.5 px-5 pb-4 pt-5">
-            <div className="flex items-center justify-between">
-              <h1 className="text-[26px] font-extrabold tracking-[-0.02em]">Pantau Wilayah</h1>
-              <SimBadge />
-            </div>
-            <FilterChips />
-          </div>
-          <div className="flex items-center justify-between bg-tint px-5 py-2.5">
-            <p className="text-[15px] font-extrabold">{incidents.length} kejadian sesuai filter</p>
-            <ViewToggle view={view} onChange={setView} />
+            <h1 className="text-[26px] font-extrabold tracking-[-0.02em]">Pantau Wilayah</h1>
+            <StatusChips value={filter} onChange={setFilter} />
           </div>
           <p className="flex gap-2 px-5 pb-1 pt-3 text-[13px] font-medium leading-snug text-ink-2">
             <Icon name="info" size={16} className="mt-0.5 shrink-0" />
             Hanya laporan yang lolos pemeriksaan publikasi. Peta kosong bukan berarti aman.
           </p>
           <ul className="flex-1 space-y-2.5 overflow-y-auto px-3.5 pb-4 pt-3">
-            {incidents.map((i) => (
+            {shown.length === 0 && <li className="px-2 py-6 text-center text-sm font-semibold text-ink-2">Tidak ada kejadian dengan status ini.</li>}
+            {shown.map((i) => (
               <li key={i.id}>
                 <IncidentRow incident={i} selected={i.id === selectedId} onSelect={setSelectedId} />
               </li>
@@ -53,28 +62,22 @@ export function PantauView() {
           <LiveMap
             center={INDONESIA_VIEW.center}
             zoom={INDONESIA_VIEW.zoom}
-            incidents={incidents}
-            selectedId={selectedId}
+            incidents={shown}
+            selectedId={selected?.id}
             onSelect={setSelectedId}
             followSelected
             selectedZoom={isDesktop ? 6.5 : 7}
-            padding={isDesktop ? { right: 380, bottom: 40 } : { top: 170, bottom: 330 }}
+            padding={isDesktop ? { right: 380, bottom: 40 } : { top: 150, bottom: 330 }}
             controls={isDesktop ? "full" : "locate"}
-            controlsClassName={isDesktop ? "absolute right-4 top-4" : "absolute right-4 top-[190px]"}
+            controlsClassName={isDesktop ? "absolute right-4 top-4" : "absolute right-4 top-[136px]"}
             className="h-full w-full"
           />
           {isDesktop && selected && <Popover incident={selected} onClose={() => setSelectedId(undefined)} />}
-          <MobileOverlay selected={selected} />
+          <MobileOverlay selected={selected} filter={filter} onFilterChange={setFilter} />
 
-          <div className="pointer-events-none absolute left-4 top-4 hidden lg:block">
-            <span className="pointer-events-auto inline-flex items-center gap-2 rounded-full bg-white/95 px-4 py-2 text-[13px] font-semibold shadow-soft">
-              <span className="h-2 w-2 rounded-full bg-leaf" />
-              Diperbarui 3 mnt lalu · hanya laporan yang lolos pemeriksaan
-            </span>
-          </div>
           <Legend />
 
-          <MobileSheet view={view} onViewChange={setView} selected={selected} onSelect={setSelectedId} />
+          <MobileSheet items={shown} view={view} onViewChange={setView} selected={selected} onSelect={setSelectedId} />
         </main>
       </div>
       <MobileTabBar active="pantau" />
@@ -82,37 +85,26 @@ export function PantauView() {
   );
 }
 
-function FilterChips({ compact = false }: { compact?: boolean }) {
+function StatusChips({ value, onChange, compact = false }: { value: StatusFilter; onChange: (v: StatusFilter) => void; compact?: boolean }) {
   return (
-    <div className={`flex gap-2 ${compact ? "" : "flex-wrap"}`}>
-      <button type="button" className="chip-active shrink-0" aria-pressed="true">
-        {!compact && <Icon name="clock" size={16} />}
-        24 jam
-      </button>
-      {filters.map((f) => (
-        <button key={f} type="button" className="chip shrink-0">
-          {f}
-        </button>
-      ))}
-    </div>
-  );
-}
-
-function ViewToggle({ view, onChange }: { view: "peta" | "daftar"; onChange: (v: "peta" | "daftar") => void }) {
-  return (
-    <div className="flex rounded-full bg-line p-[3px]" role="tablist" aria-label="Tampilan">
-      {(["peta", "daftar"] as const).map((v) => (
-        <button
-          key={v}
-          type="button"
-          role="tab"
-          aria-selected={view === v}
-          onClick={() => onChange(v)}
-          className={`rounded-full px-3.5 py-1.5 text-[13px] capitalize ${view === v ? "bg-white font-bold text-ink" : "font-semibold text-ink-2"}`}
-        >
-          {v}
-        </button>
-      ))}
+    <div className={`flex gap-2 ${compact ? "" : "flex-wrap"}`} role="radiogroup" aria-label="Filter kondisi">
+      {statusFilters.map((f) => {
+        const on = value === f.value;
+        const count = incidents.filter((i) => matchesFilter(i, f.value)).length;
+        return (
+          <button
+            key={f.value}
+            type="button"
+            role="radio"
+            aria-checked={on}
+            onClick={() => onChange(f.value)}
+            className={`${on ? "chip-active" : `chip ${compact ? "border-transparent" : ""}`} shrink-0 ${compact ? "shadow-soft" : ""}`}
+          >
+            {f.label}
+            <span className={`text-xs font-bold ${on ? "text-white/80" : "text-stale"}`}>{count}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -130,10 +122,10 @@ function IncidentRow({ incident, selected, onSelect }: { incident: Incident; sel
       <IndicationGlyph incident={incident} />
       <span className="flex min-w-0 flex-col gap-1.5">
         <span className="text-base font-extrabold leading-snug">{incident.title}</span>
-        <span className="eyebrow">
+        <span className="text-xs font-semibold text-earth">
           {incident.region} · {incident.updatedAgo}
         </span>
-        <IncidentTags incident={incident} />
+        <IncidentTags incident={incident} showEvidence={false} />
       </span>
     </button>
   );
@@ -148,7 +140,7 @@ function Popover({ incident, onClose }: { incident: Incident; onClose: () => voi
       aria-label={incident.title}
     >
       <div className="flex items-center justify-between">
-        <p className="eyebrow">
+        <p className="text-xs font-semibold text-earth">
           {incident.region} · {incident.updatedAgo}
         </p>
         <button type="button" onClick={onClose} className="grid h-8 w-8 place-items-center rounded-full bg-tint text-ink-2" aria-label="Tutup">
@@ -156,9 +148,8 @@ function Popover({ incident, onClose }: { incident: Incident; onClose: () => voi
         </button>
       </div>
       <h2 className="mt-2 text-[19px] font-extrabold leading-snug">{incident.title}</h2>
-      <EvidenceLadder incident={incident} labels="summary" className="mt-3" />
       <div className="mt-3">
-        <IncidentTags incident={incident} />
+        <IncidentTags incident={incident} showEvidence={false} />
       </div>
       <div className="mt-4 flex gap-2">
         <Link href={`/kejadian/${incident.id}`} className="btn-primary flex-1 py-3 text-sm">
@@ -174,35 +165,83 @@ function Popover({ incident, onClose }: { incident: Incident; onClose: () => voi
 }
 
 function Legend() {
-  const rows = [
-    { dot: "bg-fire ring-2 ring-white", label: "Indikasi api" },
-    { dot: "bg-smoke ring-2 ring-white", label: "Indikasi asap" },
-    { dot: "border-[1.5px] border-dashed border-smoke bg-smoke/15", label: "Area perkiraan / arah" },
-    { dot: "border-[1.5px] border-dashed border-[#9aa79e] bg-white", label: "Informasi lama (> 48 jam)" },
-    { dot: "bg-support ring-2 ring-white", label: "Angka = pengamatan pendukung" },
-    { dot: "border-2 border-forest bg-white", label: "Kumpulan kejadian (bukan bahaya)" },
+  const groups: { title: string; rows: { icon: React.ReactNode; label: string }[] }[] = [
+    {
+      title: "Jenis indikasi",
+      rows: [
+        {
+          icon: (
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-fire text-white ring-2 ring-white">
+              <Icon name="flame" size={14} />
+            </span>
+          ),
+          label: "Api",
+        },
+        {
+          icon: (
+            <span className="grid h-7 w-7 place-items-center rounded-full bg-smoke text-white ring-2 ring-white">
+              <Icon name="smoke" size={14} />
+            </span>
+          ),
+          label: "Asap",
+        },
+      ],
+    },
+    {
+      title: "Penanda",
+      rows: [
+        { icon: <span className="h-7 w-7 rounded-full border-[1.5px] border-dashed border-smoke bg-smoke/15" />, label: "Area perkiraan" },
+        {
+          icon: (
+            <span className="grid h-7 w-7 place-items-center rounded-full border-[1.5px] border-dashed border-smoke bg-white text-smoke opacity-75">
+              <Icon name="smoke" size={13} />
+            </span>
+          ),
+          label: "Info lama",
+        },
+        {
+          icon: <span className="grid h-7 w-7 place-items-center rounded-full border-2 border-forest bg-white text-[11px] font-extrabold text-forest">12</span>,
+          label: "Kumpulan kejadian",
+        },
+        {
+          icon: <span className="grid h-5 min-w-5 place-items-center rounded-full bg-support px-1 text-[10px] font-extrabold text-white ring-2 ring-white">2</span>,
+          label: "Pengamatan pendukung",
+        },
+      ],
+    },
   ];
   return (
-    <details className="absolute bottom-4 left-4 hidden w-[300px] rounded-[20px] bg-white p-4 shadow-soft lg:block">
-      <summary className="cursor-pointer text-[15px] font-extrabold">Legenda</summary>
-      <ul className="mt-2.5 space-y-2">
-        {rows.map((r) => (
-          <li key={r.label} className="flex items-center gap-2.5 text-[13px] font-medium">
-            <span className={`h-4 w-4 shrink-0 rounded-full ${r.dot}`} />
-            {r.label}
-          </li>
+    <details className="group absolute bottom-4 left-4 hidden w-[300px] overflow-hidden rounded-[20px] bg-white shadow-soft lg:block" open>
+      <summary className="flex cursor-pointer list-none items-center gap-2.5 px-4 py-3 [&::-webkit-details-marker]:hidden">
+        <Icon name="layers" size={18} className="text-leaf" />
+        <span className="flex-1 text-[15px] font-extrabold">Legenda</span>
+        <Icon name="chevronRight" size={18} className="text-ink-2 transition-transform group-open:rotate-90" />
+      </summary>
+      <div className="space-y-3.5 border-t border-line px-4 pb-4 pt-3">
+        {groups.map((g) => (
+          <div key={g.title}>
+            <p className="text-[11px] font-bold uppercase tracking-wide text-stale">{g.title}</p>
+            <ul className="mt-2 grid grid-cols-2 gap-x-3 gap-y-2.5">
+              {g.rows.map((r) => (
+                <li key={r.label} className="flex items-center gap-2 text-[13px] font-semibold leading-tight">
+                  <span className="grid w-7 shrink-0 place-items-center">{r.icon}</span>
+                  {r.label}
+                </li>
+              ))}
+            </ul>
+          </div>
         ))}
-      </ul>
+      </div>
     </details>
   );
 }
 
 /** Kontrol yang mengambang di atas peta pada mobile. */
-function MobileOverlay({ selected }: { selected?: Incident }) {
+function MobileOverlay({ selected, filter, onFilterChange }: { selected?: Incident; filter: StatusFilter; onFilterChange: (v: StatusFilter) => void }) {
   return (
     <div className="pointer-events-none absolute inset-0 lg:hidden">
       <div className="absolute inset-x-4 top-3 space-y-2.5 [&>*]:pointer-events-auto">
-        <label className="flex h-[54px] items-center gap-2.5 rounded-full bg-white pl-[18px] pr-1.5 shadow-float">
+        <label className="flex h-[54px] items-center gap-2.5 rounded-full bg-white pl-[18px] pr-[18px] shadow-float">
           <Icon name="search" size={20} className="text-ink-2" />
           <input
             key={selected?.id}
@@ -211,53 +250,93 @@ function MobileOverlay({ selected }: { selected?: Incident }) {
             placeholder="Cari wilayah"
             className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none"
           />
-          <span className="grid h-[42px] w-[42px] place-items-center rounded-full bg-sprout text-forest">
-            <Icon name="sliders" size={20} />
-          </span>
         </label>
-        <div className="-mx-4 overflow-x-auto px-4">
-          <FilterChips compact />
+        <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
+          <StatusChips value={filter} onChange={onFilterChange} compact />
         </div>
-        <SimBadge />
       </div>
     </div>
   );
 }
 
 function MobileSheet({
+  items,
   view,
   onViewChange,
   selected,
   onSelect,
 }: {
+  items: Incident[];
   view: "peta" | "daftar";
   onViewChange: (v: "peta" | "daftar") => void;
   selected?: Incident;
   onSelect: (id: string) => void;
 }) {
   const expanded = view === "daftar";
+  const sheetRef = useRef<HTMLElement>(null);
+  const collapsedH = useRef(260);
+  const drag = useRef<{ startY: number; startH: number; maxH: number } | null>(null);
+  const [dragH, setDragH] = useState<number | null>(null);
+  const dragged = useRef(false);
+
+  // Ingat tinggi lembar saat tertutup, jadi batas bawah saat ditarik.
+  useLayoutEffect(() => {
+    if (!expanded && dragH === null && sheetRef.current) collapsedH.current = sheetRef.current.offsetHeight;
+  });
+
+  const onPointerDown = (e: React.PointerEvent) => {
+    const el = sheetRef.current;
+    if (!el) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragged.current = false;
+    drag.current = { startY: e.clientY, startH: el.offsetHeight, maxH: (el.parentElement?.clientHeight ?? 700) * 0.72 };
+  };
+  const onPointerMove = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    if (Math.abs(e.clientY - d.startY) > 6) dragged.current = true;
+    const h = Math.min(d.maxH, Math.max(collapsedH.current, d.startH - (e.clientY - d.startY)));
+    setDragH(h);
+  };
+  const onPointerUp = (e: React.PointerEvent) => {
+    const d = drag.current;
+    if (!d) return;
+    drag.current = null;
+    const dy = e.clientY - d.startY;
+    if (dy < -40) onViewChange("daftar");
+    else if (dy > 40) onViewChange("peta");
+    setDragH(null);
+  };
+
+  const showList = dragH !== null ? dragH > collapsedH.current + 80 : expanded;
+
   return (
     <section
-      className={`absolute inset-x-0 bottom-20 z-30 flex flex-col rounded-t-[28px] bg-white px-4 pb-4 pt-2.5 shadow-[0_-6px_28px_rgb(19_38_27/0.18)] transition-[height] duration-300 lg:hidden ${
-        expanded ? "h-[72%]" : ""
-      }`}
+      ref={sheetRef}
+      className={`absolute inset-x-0 bottom-20 z-30 flex flex-col rounded-t-[28px] bg-white px-4 pb-4 shadow-[0_-6px_28px_rgb(19_38_27/0.18)] lg:hidden ${
+        dragH === null ? "transition-[height] duration-300" : ""
+      } ${expanded && dragH === null ? "h-[72%]" : ""}`}
+      style={dragH !== null ? { height: dragH } : undefined}
       aria-label="Daftar kejadian"
     >
-      <button
-        type="button"
-        onClick={() => onViewChange(expanded ? "peta" : "daftar")}
-        className="mx-auto mb-3 h-[5px] w-11 rounded-full bg-[#c9d6c3]"
-        aria-label={expanded ? "Kecilkan daftar" : "Perbesar daftar"}
-      />
-      <div className="flex items-center justify-between">
-        <h2 className="text-lg font-extrabold">{incidents.length} kejadian di Indonesia</h2>
-        <button type="button" onClick={() => onViewChange(expanded ? "peta" : "daftar")} className="text-sm font-bold text-leaf">
-          {expanded ? "Lihat peta" : "Lihat daftar"}
-        </button>
+      <div
+        className="-mx-4 cursor-grab touch-none select-none px-4 pb-1 pt-2.5 active:cursor-grabbing"
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
+      >
+        <button
+          type="button"
+          onClick={() => !dragged.current && onViewChange(expanded ? "peta" : "daftar")}
+          className="mx-auto mb-3 block h-[5px] w-11 rounded-full bg-[#c9d6c3]"
+          aria-label={expanded ? "Kecilkan daftar" : "Perbesar daftar"}
+        />
+        <h2 className="text-lg font-extrabold">{items.length} kejadian di Indonesia</h2>
       </div>
-      {expanded ? (
+      {showList ? (
         <ul className="mt-3 flex-1 space-y-2.5 overflow-y-auto">
-          {incidents.map((i) => (
+          {items.map((i) => (
             <li key={i.id}>
               <IncidentRow
                 incident={i}
@@ -277,13 +356,14 @@ function MobileSheet({
               <IndicationGlyph incident={selected} />
               <div className="min-w-0">
                 <h3 className="text-base font-extrabold leading-snug">{selected.title}</h3>
-                <p className="eyebrow mt-1">
+                <p className="mt-1 text-xs font-semibold text-earth">
                   {selected.updatedAgo} · {selected.updatedAt}
                 </p>
               </div>
             </div>
-            <EvidenceLadder incident={selected} labels="none" className="mt-3" />
-            <p className="mt-2 text-[13px] font-semibold text-ink-2">{ladderText(selected)}</p>
+            <div className="mt-3">
+              <IncidentTags incident={selected} showEvidence={false} />
+            </div>
             <div className="mt-3 flex gap-2">
               <Link href={`/kejadian/${selected.id}`} className="btn-primary flex-1 py-3 text-sm">
                 Lihat detail
