@@ -115,14 +115,9 @@ function Checking({ reportId, state }: { reportId: string; state: Exclude<Report
               </button>
             </>
           ) : (
-            <>
-              <Link href="/pantau" className="btn-outline px-6 py-3.5 text-[15px]">
-                Kembali ke peta
-              </Link>
-              <Link href="?status=perlu-dilengkapi" className="px-4 py-3 text-[15px] font-bold text-leaf underline">
-                Lihat contoh “perlu dilengkapi”
-              </Link>
-            </>
+            <Link href="/pantau" className="btn-outline px-6 py-3.5 text-[15px]">
+              Kembali ke peta
+            </Link>
           )}
         </div>
       </section>
