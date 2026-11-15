@@ -29,12 +29,9 @@ export default function MasukPage() {
           <button type="submit" className="btn-primary w-full py-3.5 text-base">
             Kirim tautan masuk
           </button>
-          <p className="text-[13px] font-medium text-ink-2">
-            Prototipe: tombol ini langsung membuka form laporan. Email, nomor telepon, dan lokasi rumah tidak pernah ditampilkan ke publik.
-          </p>
         </form>
         <Link href="/" className="mt-10 text-[15px] font-bold text-leaf">
-          ← Kembali ke beranda
+          Kembali ke beranda
         </Link>
       </div>
     </main>
