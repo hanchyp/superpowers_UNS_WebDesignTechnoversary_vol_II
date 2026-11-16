@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useId, useRef, useState } from "react";
 import { Icon } from "./Icon";
 
@@ -74,6 +75,17 @@ export function ProfileMenu({ name, email, signOut, tone = "light", compact = fa
               <p className="truncate text-[15px] font-bold">{name}</p>
               {email && <p className="truncate text-[13px] font-medium text-ink-2">{email}</p>}
             </div>
+          </div>
+          <div className="border-b border-line p-1.5">
+            <Link
+              href="/laporan-saya"
+              role="menuitem"
+              onClick={() => setOpen(false)}
+              className="flex w-full items-center gap-2.5 rounded-xl px-3 py-2.5 text-[15px] font-bold text-ink hover:bg-tint"
+            >
+              <Icon name="inbox" size={18} />
+              Laporan saya
+            </Link>
           </div>
           <form
             action={async () => {

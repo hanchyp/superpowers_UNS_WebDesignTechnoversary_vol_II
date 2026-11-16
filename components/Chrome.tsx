@@ -6,6 +6,7 @@ import { AccountNav } from "./AccountNav";
 import { AuthLink } from "./AuthLink";
 import { Logo } from "./Brand";
 import { Icon } from "./Icon";
+import { MobileMenu } from "./MobileMenu";
 
 /** Bar atas halaman alat (Pantau, Detail, Lapor, Status). */
 export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi" | "tentang" | "kontak"; search?: boolean }) {
@@ -50,6 +51,7 @@ export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi
           <span className="hidden sm:inline">Laporkan pengamatan</span>
           <span className="sm:hidden">Lapor</span>
         </Link>
+        <MobileMenu activeHref={active ? `/${active}` : undefined} />
       </div>
     </header>
   );
