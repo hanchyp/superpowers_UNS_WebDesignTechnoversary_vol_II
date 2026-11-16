@@ -1,4 +1,4 @@
-import { incidents, type Incident } from "./incidents";
+import type { IncidentLite } from "./incidents";
 
 export type LngLat = [number, number];
 
@@ -14,9 +14,13 @@ export function distanceKm([lon1, lat1]: LngLat, [lon2, lat2]: LngLat) {
 }
 
 /** Kejadian aktif terdekat dari sebuah titik, kalau ada dalam radius tertentu. */
-export function nearestIncident(point: LngLat, radiusKm = NEARBY_KM): { incident: Incident; km: number } | undefined {
-  let best: { incident: Incident; km: number } | undefined;
-  for (const incident of incidents) {
+export function nearestIncident<T extends Pick<IncidentLite, "lon" | "lat" | "condition">>(
+  point: LngLat,
+  list: T[],
+  radiusKm = NEARBY_KM,
+): { incident: T; km: number } | undefined {
+  let best: { incident: T; km: number } | undefined;
+  for (const incident of list) {
     if (incident.condition === "selesai") continue;
     const km = distanceKm(point, [incident.lon, incident.lat]);
     if (km <= radiusKm && (!best || km < best.km)) best = { incident, km };

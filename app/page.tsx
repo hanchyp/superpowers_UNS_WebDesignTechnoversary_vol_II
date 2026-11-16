@@ -10,9 +10,10 @@ import { LandingIntro } from "@/components/LandingIntro";
 import { LandingNav } from "@/components/LandingNav";
 import { LandingScrollMotion } from "@/components/LandingScrollMotion";
 import { LandingReportPreview } from "@/components/LandingReportPreview";
-import { RegionalMap } from "@/components/Map";
+import { Suspense } from "react";
+import { IncidentMiniMap } from "@/components/IncidentMiniMap";
 import { IncidentTags } from "@/components/Status";
-import { getIncident } from "@/lib/incidents";
+import { listIncidents } from "@/lib/incidentsDb";
 
 const steps = [
   { n: "1", title: "Amati", text: "Lihat asap atau api? Potret dari tempat aman dan tandai lokasi atau arahnya.", bg: "bg-sun" },
@@ -22,9 +23,46 @@ const steps = [
 
 const landingCardStyle = "rounded-3xl border-2 border-forest shadow-[0_10px_28px_-8px_rgba(0,0,0,0.22)]";
 
+/** Kejadian contoh untuk "Setiap pengamatan punya cerita": Pulang Pisau bila ada, selain itu yang paling banyak dukungan. */
+async function FeaturedStory() {
+  const incidents = await listIncidents();
+  const featured =
+    incidents.find((i) => i.id === "pulang-pisau") ?? [...incidents].sort((a, b) => b.supportCount - a.supportCount)[0];
+  if (!featured) return null;
+  return <LandingReportPreview incident={featured} className={landingCardStyle} />;
+}
+
+/** Tiga kejadian dengan pembaruan paling baru. */
+async function RecentIncidents() {
+  const recent = (await listIncidents()).slice(0, 3);
+  if (!recent.length) {
+    return <p className="px-5 pb-8 text-sm font-semibold text-ink-2 md:px-8">Belum ada kejadian yang terbit.</p>;
+  }
+  return (
+    <div className="mt-7 flex snap-x gap-4 overflow-x-auto px-5 pb-8 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-8">
+      {recent.map((i, index) => (
+        <Link
+          key={i.id}
+          data-landing-reveal="slide"
+          data-motion-order={index}
+          href={`/kejadian/${i.id}`}
+          className={`${landingCardStyle} w-[280px] shrink-0 snap-start overflow-hidden bg-white transition hover:-translate-y-1 md:w-auto`}
+        >
+          <IncidentMiniMap incident={i} className="h-36 border-b-2 border-forest md:h-48" />
+          <div className="flex flex-col gap-2.5 p-4 md:p-5">
+            <p className="font-sans text-xs font-semibold text-earth">
+              {i.region} · {i.updatedAgo}
+            </p>
+            <h3 className="text-base font-extrabold leading-snug md:text-xl">{i.title}</h3>
+            <IncidentTags incident={i} showEvidence={false} />
+          </div>
+        </Link>
+      ))}
+    </div>
+  );
+}
+
 export default function Home() {
-  const featured = getIncident("pulang-pisau")!;
-  const recent = ["pulang-pisau", "ketapang", "banjar"].map((id) => getIncident(id)!);
 
   return (
     <LandingIntro>
@@ -100,7 +138,9 @@ export default function Home() {
           <h2 data-landing-reveal="text" className="text-[28px] font-extrabold leading-tight tracking-[-0.025em] md:text-center md:text-[40px]">
             Setiap pengamatan punya cerita
           </h2>
-          <LandingReportPreview incident={featured} className={landingCardStyle} />
+          <Suspense fallback={<div className={`${landingCardStyle} mt-8 h-[420px] bg-white/60`} />}>
+            <FeaturedStory />
+          </Suspense>
         </div>
       </section>
 
@@ -117,26 +157,17 @@ export default function Home() {
               <Icon name="arrowRight" size={18} />
             </Link>
           </div>
-          <div className="mt-7 flex snap-x gap-4 overflow-x-auto px-5 pb-8 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-8">
-            {recent.map((i, index) => (
-              <Link
-                key={i.id}
-                data-landing-reveal="slide"
-                data-motion-order={index}
-                href={`/kejadian/${i.id}`}
-                className={`${landingCardStyle} w-[280px] shrink-0 snap-start overflow-hidden bg-white transition hover:-translate-y-1 md:w-auto`}
-              >
-                <RegionalMap focus={i} items={[i]} showTowns={false} className="h-36 border-b-2 border-forest md:h-48" />
-                <div className="flex flex-col gap-2.5 p-4 md:p-5">
-                  <p className="font-sans text-xs font-semibold text-earth">
-                    {i.region} · {i.updatedAgo}
-                  </p>
-                  <h3 className="text-base font-extrabold leading-snug md:text-xl">{i.title}</h3>
-                  <IncidentTags incident={i} showEvidence={false} />
-                </div>
-              </Link>
-            ))}
-          </div>
+          <Suspense
+            fallback={
+              <div className="mt-7 flex gap-4 overflow-hidden px-5 pb-8 md:grid md:grid-cols-3 md:gap-6 md:px-8">
+                {[0, 1, 2].map((n) => (
+                  <div key={n} className={`${landingCardStyle} h-[300px] w-[280px] shrink-0 bg-white/70 md:w-auto`} />
+                ))}
+              </div>
+            }
+          >
+            <RecentIncidents />
+          </Suspense>
         </div>
       </section>
 

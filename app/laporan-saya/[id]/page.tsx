@@ -3,6 +3,7 @@ import { notFound } from "next/navigation";
 import { connection } from "next/server";
 import { Suspense } from "react";
 import { AppBar } from "@/components/Chrome";
+import { listIncidents, toLite } from "@/lib/incidentsDb";
 import { formatWIB, indicationText, reportPlace } from "@/lib/reports";
 import { supabaseServer } from "@/lib/supabase";
 import { StatusView } from "./StatusView";
@@ -41,6 +42,9 @@ async function ReportStatus({ params }: PageProps<"/laporan-saya/[id]">) {
     coverUrl = data?.signedUrl ?? null;
   }
 
+  const incidents = (await listIncidents()).map(toLite);
+  const linked = report.incident_id ? incidents.find((i) => i.id === report.incident_id) : undefined;
+
   return (
     <StatusView
       header={<AppBar search={false} />}
@@ -48,9 +52,9 @@ async function ReportStatus({ params }: PageProps<"/laporan-saya/[id]">) {
         code: report.code,
         status: report.status,
         checks: report.checks_done,
-        summary: `${indicationText[report.indication]} · ${reportPlace(report)}`,
+        summary: `${indicationText[report.indication]} · ${reportPlace(report, incidents)}`,
         sentAt: formatWIB(report.created_at),
-        incidentId: report.incident_id,
+        incident: linked ? { id: linked.id, title: linked.title } : null,
         cover: cover && coverUrl ? { url: coverUrl, kind: cover.kind as "foto" | "video" } : null,
       }}
     />

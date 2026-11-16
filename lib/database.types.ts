@@ -8,6 +8,54 @@ export type Database = {
   };
   public: {
     Tables: {
+      incidents: {
+        Row: {
+          created_at: string;
+          first_seen_at: string;
+          id: string;
+          indication: Database["public"]["Enums"]["report_indication"];
+          is_demo: boolean;
+          lat: number;
+          lon: number;
+          place: string;
+          precision: string;
+          radius_km: number;
+          region: string;
+          region_short: string;
+          review: Database["public"]["Enums"]["incident_review"];
+          source_report_id: string | null;
+          summary: string;
+          support_count: number;
+          condition: Database["public"]["Enums"]["incident_condition"];
+          title: string;
+          updated_at: string;
+        };
+        Insert: { [_ in never]: never };
+        Update: { [_ in never]: never };
+        Relationships: [];
+      };
+      incident_events: {
+        Row: {
+          at: string;
+          id: string;
+          incident_id: string;
+          kind: string;
+          note: string;
+          report_id: string | null;
+          title: string;
+        };
+        Insert: { [_ in never]: never };
+        Update: { [_ in never]: never };
+        Relationships: [
+          {
+            foreignKeyName: "incident_events_incident_id_fkey";
+            columns: ["incident_id"];
+            isOneToOne: false;
+            referencedRelation: "incidents";
+            referencedColumns: ["id"];
+          },
+        ];
+      };
       profiles: {
         Row: { created_at: string; full_name: string | null; id: string };
         Insert: { created_at?: string; full_name?: string | null; id: string };
@@ -122,11 +170,18 @@ export type Database = {
         Args: { p_code: string };
         Returns: {
           current_checks: number;
+          current_incident: string | null;
           current_status: Database["public"]["Enums"]["report_status"];
         }[];
       };
+      incident_photos: {
+        Args: { p_incident_id: string };
+        Returns: { path: string; created_at: string }[];
+      };
     };
     Enums: {
+      incident_condition: "belum-diketahui" | "berlangsung" | "mereda" | "selesai";
+      incident_review: "lolos-ai" | "didukung" | "terverifikasi";
       report_indication: "asap" | "api" | "keduanya";
       report_status: "diperiksa" | "terbit" | "perlu-dilengkapi" | "ditolak";
     };

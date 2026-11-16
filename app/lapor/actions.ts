@@ -1,6 +1,6 @@
 "use server";
 
-import { getIncident } from "@/lib/incidents";
+import { getIncidentById } from "@/lib/incidentsDb";
 import { supabaseServer } from "@/lib/supabase";
 
 const BUCKET = "report-media";
@@ -50,7 +50,7 @@ export async function createReport(input: NewReport): Promise<CreateReportResult
     return fail("Titik lokasi tidak valid.");
   }
   if (input.locationMode === "arah" && !DIRECTIONS.includes(input.direction)) return fail("Arah tidak dikenal.");
-  if (input.incidentId && !getIncident(input.incidentId)) return fail("Kejadian yang dipilih tidak ditemukan.");
+  if (input.incidentId && !(await getIncidentById(input.incidentId))) return fail("Kejadian yang dipilih tidak ditemukan.");
   const note = input.note.trim().slice(0, 4000);
   if (!Array.isArray(input.media) || input.media.length < 1 || input.media.length > MAX_FILES) {
     return fail(`Lampirkan 1 sampai ${MAX_FILES} foto atau video.`);

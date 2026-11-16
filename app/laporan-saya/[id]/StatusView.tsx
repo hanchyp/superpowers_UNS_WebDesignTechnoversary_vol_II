@@ -6,7 +6,6 @@ import { useEffect, useState, type ReactNode } from "react";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { Icon } from "@/components/Icon";
 import type { ReportStatus } from "@/lib/database.types";
-import { getIncident } from "@/lib/incidents";
 import { refreshReportStatus } from "../actions";
 
 export type StatusReport = {
@@ -15,13 +14,14 @@ export type StatusReport = {
   checks: number;
   summary: string;
   sentAt: string;
-  incidentId: string | null;
+  incident: { id: string; title: string } | null;
   cover: { url: string; kind: "foto" | "video" } | null;
 };
 
 export function StatusView({ header, report }: { header: ReactNode; report: StatusReport }) {
   const [status, setStatus] = useState(report.status);
   const [checks, setChecks] = useState(report.checks);
+  const [incident, setIncident] = useState(report.incident);
 
   // Ambil status terbaru dari database: cepat selama diperiksa, pelan bila menunggu tindakan
   // (mis. status diubah manual dari dashboard). Berhenti setelah terbit/ditolak.
@@ -34,6 +34,7 @@ export function StatusView({ header, report }: { header: ReactNode; report: Stat
       if (!alive || !next) return;
       setStatus(next.status);
       setChecks(next.checks);
+      if (next.incident) setIncident(next.incident);
     }, every);
     return () => {
       alive = false;
@@ -44,7 +45,7 @@ export function StatusView({ header, report }: { header: ReactNode; report: Stat
   return (
     <div className="flex min-h-[100svh] flex-col bg-tint">
       {header}
-      {status === "terbit" ? <Published incidentId={report.incidentId} /> : <Checking report={report} status={status} checks={checks} />}
+      {status === "terbit" ? <Published incident={incident} code={report.code} /> : <Checking report={report} status={status} checks={checks} />}
       <MobileTabBar active="laporan" />
     </div>
   );
@@ -227,8 +228,9 @@ function Step({ state, title, note, last }: { state: "done" | "active" | "warn" 
   );
 }
 
-function Published({ incidentId }: { incidentId: string | null }) {
-  const incident = incidentId ? getIncident(incidentId) : undefined;
+function Published({ incident, code }: { incident: { id: string; title: string } | null; code: string }) {
+  // Kejadian baru dari laporan ini ber-ID "wr-<nomor>"; selain itu laporan digabung ke kejadian yang ada.
+  const isNew = incident?.id === "wr-" + code.slice(3).toLowerCase();
   return (
     <main className="flex flex-1 justify-center px-4 pb-32 pt-6 md:pt-10">
       <section className="relative flex w-full max-w-[680px] flex-col items-center overflow-hidden rounded-[32px] bg-white px-6 pb-8 pt-10 md:px-12 text-center shadow-soft">
@@ -242,9 +244,11 @@ function Published({ incidentId }: { incidentId: string | null }) {
           Laporan lolos pemeriksaan, terima kasih!
         </h1>
         <p className="relative mt-2 max-w-[460px] text-[15px] md:text-base font-medium text-ink-2">
-          {incident
-            ? `Pengamatanmu ditambahkan ke kejadian "${incident.title}".`
-            : "Pengamatanmu lolos pemeriksaan awal dan siap ditampilkan sebagai kejadian baru."}
+          {!incident
+            ? "Pengamatanmu lolos pemeriksaan awal dan sedang ditampilkan di peta."
+            : isNew
+              ? `Pengamatanmu kini tampil di peta sebagai kejadian baru: "${incident.title}".`
+              : `Pengamatanmu ditambahkan ke kejadian "${incident.title}" dan sudah tampil di peta.`}
         </p>
 
         <div className="relative mt-8 flex w-full items-center gap-3.5 rounded-[20px] bg-[#f3f5f1] p-4 text-left">

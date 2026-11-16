@@ -4,8 +4,9 @@ import Link from "next/link";
 import { AppBar, SiteFooter } from "@/components/Chrome";
 import { EdukasiBasics } from "@/components/EdukasiBasics";
 import { Icon } from "@/components/Icon";
-import { RegionalMap } from "@/components/Map";
-import { incidents } from "@/lib/incidents";
+import { Suspense } from "react";
+import { IncidentMiniMap } from "@/components/IncidentMiniMap";
+import { listIncidents } from "@/lib/incidentsDb";
 
 export const metadata: Metadata = {
   title: "Edukasi Karhutla",
@@ -13,9 +14,6 @@ export const metadata: Metadata = {
 };
 
 export default function EdukasiPage() {
-  // Data simulasi diurutkan dari pembaruan paling baru di lib/incidents.ts.
-  const recent = incidents.slice(0, 3);
-
   return (
     <>
       <AppBar active="edukasi" search={false} />
@@ -45,29 +43,38 @@ export default function EdukasiPage() {
             <div className="flex flex-wrap items-end justify-between gap-4">
               <div>
                 <h2 id="judul-kejadian" className="text-3xl font-extrabold tracking-tight md:text-4xl">Kejadian terbaru</h2>
-                <p className="mt-2 text-ink-2">Data simulasi untuk mencoba alur pemantauan di WANA.</p>
+                <p className="mt-2 text-ink-2">Pembaruan terbaru dari laporan warga di peta WANA.</p>
               </div>
               <Link href="/pantau" className="btn border border-forest bg-white px-5 py-3 text-forest hover:bg-sprout">
                 Buka peta lengkap <Icon name="arrowRight" size={18} />
               </Link>
             </div>
-            <ul className="mt-7 grid gap-4 md:grid-cols-3">
-              {recent.map((incident) => (
-                <li key={incident.id}>
-                  <Link href={`/kejadian/${incident.id}`} className="group block h-full overflow-hidden rounded-3xl border border-line bg-white hover:border-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
-                    <RegionalMap focus={incident} items={[incident]} showTowns={false} className="h-40 border-b border-line" />
-                    <div className="p-5">
-                      <p className="text-sm font-semibold text-ink-2">{incident.region} · {incident.updatedAgo}</p>
-                      <h3 className="mt-2 text-lg font-extrabold leading-snug group-hover:underline">{incident.title}</h3>
-                    </div>
-                  </Link>
-                </li>
-              ))}
-            </ul>
+            <Suspense fallback={<p className="mt-7 text-sm font-semibold text-ink-2">Memuat kejadian…</p>}>
+              <RecentList />
+            </Suspense>
           </div>
         </section>
       </main>
       <SiteFooter />
     </>
+  );
+}
+
+async function RecentList() {
+  const recent = (await listIncidents()).slice(0, 3);
+  return (
+    <ul className="mt-7 grid gap-4 md:grid-cols-3">
+      {recent.map((incident) => (
+        <li key={incident.id}>
+          <Link href={`/kejadian/${incident.id}`} className="group block h-full overflow-hidden rounded-3xl border border-line bg-white hover:border-forest focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-forest">
+            <IncidentMiniMap incident={incident} className="h-40 border-b border-line" />
+            <div className="p-5">
+              <p className="text-sm font-semibold text-ink-2">{incident.region} · {incident.updatedAgo}</p>
+              <h3 className="mt-2 text-lg font-extrabold leading-snug group-hover:underline">{incident.title}</h3>
+            </div>
+          </Link>
+        </li>
+      ))}
+    </ul>
   );
 }

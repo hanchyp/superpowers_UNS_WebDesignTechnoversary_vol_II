@@ -6,7 +6,7 @@ import { MobileTabBar } from "@/components/MobileTabBar";
 import { Icon } from "@/components/Icon";
 import { INDONESIA_VIEW, LiveMap } from "@/components/LiveMap";
 import { IncidentTags, IndicationGlyph } from "@/components/Status";
-import { featuredId, incidents, type Incident } from "@/lib/incidents";
+import type { Incident } from "@/lib/incidents";
 import { useIsDesktop } from "@/lib/useMediaQuery";
 
 type StatusFilter = "semua" | "berlangsung" | "mereda" | "belum-diketahui" | "lama";
@@ -25,9 +25,10 @@ function matchesFilter(i: Incident, f: StatusFilter) {
   return !i.stale && i.condition === f;
 }
 
-export function PantauView({ header }: { header: ReactNode }) {
+export function PantauView({ header, incidents }: { header: ReactNode; incidents: Incident[] }) {
   const isDesktop = useIsDesktop();
-  const [selectedId, setSelectedId] = useState<string | undefined>(featuredId);
+  // Kejadian terbaru yang masih aktif dipilih lebih dulu.
+  const [selectedId, setSelectedId] = useState<string | undefined>(() => (incidents.find((i) => !i.stale) ?? incidents[0])?.id);
   const [view, setView] = useState<"peta" | "daftar">("peta");
   const [filter, setFilter] = useState<StatusFilter>("semua");
   const shown = incidents.filter((i) => matchesFilter(i, filter));
@@ -41,7 +42,7 @@ export function PantauView({ header }: { header: ReactNode }) {
         <aside className="hidden w-[420px] shrink-0 flex-col border-r border-line bg-white lg:flex">
           <div className="space-y-3.5 px-5 pb-4 pt-5">
             <h1 className="text-[26px] font-extrabold tracking-[-0.02em]">Pantau Wilayah</h1>
-            <StatusChips value={filter} onChange={setFilter} />
+            <StatusChips value={filter} onChange={setFilter} incidents={incidents} />
           </div>
           <p className="flex gap-2 px-5 pb-1 pt-3 text-[13px] font-medium leading-snug text-ink-2">
             <Icon name="info" size={16} className="mt-0.5 shrink-0" />
@@ -73,7 +74,7 @@ export function PantauView({ header }: { header: ReactNode }) {
             className="h-full w-full"
           />
           {isDesktop && selected && <Popover incident={selected} onClose={() => setSelectedId(undefined)} />}
-          <MobileOverlay selected={selected} filter={filter} onFilterChange={setFilter} />
+          <MobileOverlay selected={selected} filter={filter} onFilterChange={setFilter} incidents={incidents} />
 
           <Legend />
 
@@ -85,7 +86,7 @@ export function PantauView({ header }: { header: ReactNode }) {
   );
 }
 
-function StatusChips({ value, onChange, compact = false }: { value: StatusFilter; onChange: (v: StatusFilter) => void; compact?: boolean }) {
+function StatusChips({ value, onChange, incidents, compact = false }: { value: StatusFilter; onChange: (v: StatusFilter) => void; incidents: Incident[]; compact?: boolean }) {
   return (
     <div className={`flex gap-2 ${compact ? "" : "flex-wrap"}`} role="radiogroup" aria-label="Filter kondisi">
       {statusFilters.map((f) => {
@@ -237,7 +238,7 @@ function Legend() {
 }
 
 /** Kontrol yang mengambang di atas peta pada mobile. */
-function MobileOverlay({ selected, filter, onFilterChange }: { selected?: Incident; filter: StatusFilter; onFilterChange: (v: StatusFilter) => void }) {
+function MobileOverlay({ selected, filter, onFilterChange, incidents }: { selected?: Incident; filter: StatusFilter; onFilterChange: (v: StatusFilter) => void; incidents: Incident[] }) {
   return (
     <div className="pointer-events-none absolute inset-0 lg:hidden">
       <div className="absolute inset-x-4 top-3 space-y-2.5 [&>*]:pointer-events-auto">
@@ -252,7 +253,7 @@ function MobileOverlay({ selected, filter, onFilterChange }: { selected?: Incide
           />
         </label>
         <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
-          <StatusChips value={filter} onChange={onFilterChange} compact />
+          <StatusChips value={filter} onChange={onFilterChange} incidents={incidents} compact />
         </div>
       </div>
     </div>

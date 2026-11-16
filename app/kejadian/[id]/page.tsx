@@ -2,19 +2,17 @@ import type { Metadata } from "next";
 import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 import { AppBar } from "@/components/Chrome";
 import { Icon } from "@/components/Icon";
 import { LiveMap } from "@/components/LiveMap";
 import { Tag } from "@/components/Status";
-import { conditionLabel, getIncident, incidents, type TimelineEntry } from "@/lib/incidents";
-
-export function generateStaticParams() {
-  return incidents.map((i) => ({ id: i.id }));
-}
+import { conditionLabel, illustrationPhoto, type TimelineEntry } from "@/lib/incidents";
+import { getIncidentById, getIncidentPhotos } from "@/lib/incidentsDb";
 
 export async function generateMetadata({ params }: PageProps<"/kejadian/[id]">): Promise<Metadata> {
   const { id } = await params;
-  const incident = getIncident(id);
+  const incident = await getIncidentById(id);
   return { title: incident?.title ?? "Kejadian tidak ditemukan" };
 }
 
@@ -31,20 +29,28 @@ const checks = [
   "Tidak ditemukan unggahan ulang foto yang sama",
 ];
 
-// Semua id sudah diketahui saat build; halaman boleh menunggu params tanpa shell instan.
-export const instant = false;
+export default function KejadianPage({ params }: PageProps<"/kejadian/[id]">) {
+  return (
+    <>
+      <AppBar active="pantau" />
+      <Suspense fallback={<main className="mx-auto w-full max-w-[1312px] px-4 pt-10 text-sm font-semibold text-ink-2 md:px-8">Memuat kejadian…</main>}>
+        <IncidentDetail params={params} />
+      </Suspense>
+    </>
+  );
+}
 
-export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]">) {
+async function IncidentDetail({ params }: Pick<PageProps<"/kejadian/[id]">, "params">) {
   const { id } = await params;
-  const incident = getIncident(id);
+  const incident = await getIncidentById(id);
   if (!incident) notFound();
+  const photos = await getIncidentPhotos(incident.id);
 
   const conditionTone =
     incident.condition === "berlangsung" ? "fire" : incident.condition === "mereda" ? "smoke" : "neutral";
 
   return (
     <>
-      <AppBar active="pantau" />
       <main className="mx-auto w-full max-w-[1312px] px-4 pb-32 pt-5 md:px-8 md:pb-24 md:pt-7">
         <Link href="/pantau" className="inline-flex items-center gap-1.5 text-[15px] font-bold text-leaf">
           <Icon name="chevronLeft" size={20} />
@@ -55,7 +61,7 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
         <header className="mt-5 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-[880px]">
             <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs font-semibold text-ink-2">ID kejadian WN-0{incidents.indexOf(incident) + 241}</span>
+              <span className="text-xs font-semibold text-ink-2">ID kejadian {incident.id.toUpperCase()}</span>
             </div>
             <h1 className="mt-3 text-[28px] font-extrabold leading-[1.15] tracking-[-0.03em] md:text-[44px]">{incident.title}</h1>
             <p className="mt-3 text-[13px] font-medium text-ink-2 md:text-sm">
@@ -77,22 +83,24 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
         <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-8">
           <div className="flex min-w-0 flex-col gap-5">
             {/* Galeri */}
-            <div className="grid h-[260px] grid-cols-[1fr_auto] gap-3 md:h-[400px]">
-              <div className="relative overflow-hidden rounded-3xl">
-                <Image src="/photos/sebangau-rawa.jpg" alt="Foto pelapor (simulasi): asap di atas rawa gambut" fill priority sizes="(min-width: 1024px) 560px, 100vw" className="object-cover" />
-                <span className="absolute left-[50%] top-[10%] h-44 w-52 rounded-full bg-[#ece9e3]/80 blur-3xl" aria-hidden="true" />
-              </div>
-              <div className="grid w-[110px] grid-rows-2 gap-3 md:w-[270px]">
-                <div className="relative overflow-hidden rounded-3xl">
-                  <Image src="/photos/sebangau-peat-dome.jpg" alt="Foto pengamatan tambahan (simulasi)" fill sizes="270px" className="object-cover" />
-                </div>
-                <div className="relative grid place-items-center overflow-hidden rounded-3xl">
-                  <Image src="/photos/kapuas.jpg" alt="" fill sizes="270px" className="object-cover" />
-                  <span className="absolute inset-0 bg-ink/50" />
-                  <span className="relative text-lg font-extrabold text-white md:text-xl">+1 foto</span>
-                </div>
-              </div>
-            </div>
+            {photos.length > 0 ? (
+              <Gallery photos={photos} />
+            ) : (
+              <figure className="relative h-[260px] overflow-hidden rounded-3xl md:h-[400px]">
+                <Image
+                  src={illustrationPhoto[incident.indication]}
+                  alt={`Ilustrasi ${incident.indication === "keduanya" ? "asap dan api" : incident.indication} di lahan gambut (dibuat AI, bukan foto kejadian ini)`}
+                  fill
+                  priority
+                  sizes="(min-width: 1024px) 860px, 100vw"
+                  className="object-cover"
+                />
+                <figcaption className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-ink/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
+                  <Icon name="info" size={14} />
+                  Ilustrasi (dibuat AI) · belum ada foto pelapor
+                </figcaption>
+              </figure>
+            )}
 
             {/* Status (mobile di atas, desktop di samping) */}
             <StatusCard className="lg:hidden" />
@@ -220,4 +228,36 @@ export default async function KejadianPage({ params }: PageProps<"/kejadian/[id]
       </section>
     );
   }
+}
+
+/** Foto dari laporan warga yang sudah terbit (EXIF/GPS sudah dibuang saat dikirim). */
+function Gallery({ photos }: { photos: string[] }) {
+  const [main, ...rest] = photos;
+  const side = rest.slice(0, 2);
+  const more = photos.length - 1 - side.length;
+  return (
+    <div className={`grid h-[260px] gap-3 md:h-[400px] ${side.length ? "grid-cols-[1fr_auto]" : ""}`}>
+      <div className="relative overflow-hidden rounded-3xl bg-ink">
+        {/* eslint-disable-next-line @next/next/no-img-element -- signed URL Supabase Storage */}
+        <img src={main} alt="Foto dari pelapor" className="absolute inset-0 h-full w-full object-cover" />
+        <span className="absolute left-3 top-3 rounded-full bg-ink/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">Foto pelapor</span>
+      </div>
+      {side.length > 0 && (
+        <div className={`grid w-[110px] gap-3 md:w-[270px] ${side.length > 1 ? "grid-rows-2" : ""}`}>
+          {side.map((src, i) => (
+            <div key={src} className="relative grid place-items-center overflow-hidden rounded-3xl bg-ink">
+              {/* eslint-disable-next-line @next/next/no-img-element -- signed URL Supabase Storage */}
+              <img src={src} alt={`Foto pengamatan ${i + 2}`} className="absolute inset-0 h-full w-full object-cover" />
+              {i === side.length - 1 && more > 0 && (
+                <>
+                  <span className="absolute inset-0 bg-ink/50" />
+                  <span className="relative text-lg font-extrabold text-white md:text-xl">+{more} foto</span>
+                </>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
 }

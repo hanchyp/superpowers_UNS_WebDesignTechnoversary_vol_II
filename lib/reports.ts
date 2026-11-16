@@ -1,6 +1,6 @@
 import type { Database, ReportIndication, ReportStatus } from "./database.types";
 import { formatLngLat, nearestIncident } from "./geo";
-import { getIncident } from "./incidents";
+import type { IncidentLite } from "./incidents";
 
 export type ReportRow = Database["public"]["Tables"]["reports"]["Row"];
 
@@ -27,11 +27,14 @@ export function formatWIB(iso: string, withDate = false) {
 }
 
 /** Nama tempat yang ramah dibaca untuk sebuah laporan. */
-export function reportPlace(r: Pick<ReportRow, "incident_id" | "location_mode" | "lon" | "lat" | "direction">) {
-  const linked = r.incident_id ? getIncident(r.incident_id) : undefined;
+export function reportPlace(
+  r: Pick<ReportRow, "incident_id" | "location_mode" | "lon" | "lat" | "direction">,
+  incidents: IncidentLite[],
+) {
+  const linked = r.incident_id ? incidents.find((i) => i.id === r.incident_id) : undefined;
   if (linked) return linked.place;
   if (r.location_mode === "titik" && r.lon != null && r.lat != null) {
-    const near = nearestIncident([r.lon, r.lat], 25);
+    const near = nearestIncident([r.lon, r.lat], incidents, 25);
     return near ? `Sekitar ${near.incident.place}` : formatLngLat([r.lon, r.lat]);
   }
   return r.direction && r.direction !== "Tidak tahu" ? `Arah ${r.direction.toLowerCase()} dari pelapor` : "Lokasi pelapor";

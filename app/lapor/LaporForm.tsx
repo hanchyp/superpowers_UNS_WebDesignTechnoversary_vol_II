@@ -7,7 +7,7 @@ import { Logo } from "@/components/Brand";
 import { Icon, type IconName } from "@/components/Icon";
 import { LiveMap } from "@/components/LiveMap";
 import { formatLngLat, nearestIncident as nearestToPoint, type LngLat } from "@/lib/geo";
-import { getIncident, type Incident, type Indication } from "@/lib/incidents";
+import type { IncidentLite as Incident, Indication } from "@/lib/incidents";
 import { checkVideo, compressImage, formatBytes, MAX_FILE_MB, MAX_FILES, MAX_VIDEO_SECONDS } from "@/lib/media";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { useMediaQuery } from "@/lib/useMediaQuery";
@@ -28,12 +28,21 @@ type Evidence = {
 };
 
 const stepNames = ["Pengamatan", "Lokasi", "Tinjau"] as const;
-/** Titik awal peta bila laporan tidak terkait kejadian tertentu. */
-const defaultOrigin = getIncident("pulang-pisau")!;
+/** Titik awal peta bila belum ada data kejadian (Palangka Raya). */
+const fallbackOrigin: Incident = {
+  id: "",
+  title: "",
+  place: "Palangka Raya",
+  region: "Kalimantan Tengah",
+  lon: 113.92,
+  lat: -2.21,
+  condition: "belum-diketahui",
+  updatedAgo: "",
+};
 /** Foto asli boleh lebih besar karena akan dikompresi sebelum diunggah. */
 const MAX_RAW_IMAGE_MB = 40;
 
-export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; relatedTitle?: string }) {
+export function LaporForm({ incidents, relatedId, relatedTitle }: { incidents: Incident[]; relatedId?: string; relatedTitle?: string }) {
   const router = useRouter();
   const now = useClock();
   const [step, setStep] = useState(0);
@@ -45,7 +54,11 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
   const [agree, setAgree] = useState(false);
   const [time, setTime] = useState<string | null>(null);
   const [note, setNote] = useState("");
-  const origin = (relatedId && getIncident(relatedId)) || defaultOrigin;
+  // Peta mulai di kejadian terkait, atau di kejadian aktif terbaru.
+  const origin =
+    (relatedId && incidents.find((i) => i.id === relatedId)) ||
+    incidents.find((i) => i.condition !== "selesai") ||
+    fallbackOrigin;
   const [pin, setPin] = useState<LngLat>([origin.lon, origin.lat]);
   const [evidence, setEvidence] = useState<Evidence[]>([]);
   const [tried, setTried] = useState(false);
@@ -60,7 +73,7 @@ export function LaporForm({ relatedId, relatedTitle }: { relatedId?: string; rel
   }, [evidence]);
   useEffect(() => () => evidenceRef.current.forEach((e) => URL.revokeObjectURL(e.url)), []);
 
-  const nearby = relatedId || locMode !== "titik" ? undefined : nearestToPoint(pin);
+  const nearby = relatedId || locMode !== "titik" ? undefined : nearestToPoint(pin, incidents);
   const observedAt = timeMode === "sekarang" ? now?.time : time ?? now?.time;
   const tz = now?.tz ?? "";
 

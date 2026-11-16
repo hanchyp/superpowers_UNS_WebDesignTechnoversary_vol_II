@@ -33,6 +33,7 @@ Buka http://localhost:3000.
 
 4. Jalankan [migrasi profil](supabase/migrations/202611160001_create_wana_profiles.sql) di **Supabase → SQL Editor**. Migrasi membuat profil untuk akun baru dan akun lama, serta membatasi akses profil ke pemiliknya.
    Lalu jalankan [migrasi laporan](supabase/migrations/202611170001_create_wana_reports.sql): tabel `reports` dan `report_media`, bucket privat `report-media` (maks. 25 MB, JPEG/WebP/PNG/MP4/MOV/WebM), RLS (pelapor hanya melihat miliknya, tidak bisa mengubah status), batas 10 laporan per jam, dan fungsi `advance_report_review` yang **menyimulasikan** pemeriksaan AI (terbit ~12 detik setelah dikirim). Untuk demo, ubah kolom `status` sebuah laporan di **Table Editor → reports** menjadi `perlu-dilengkapi` atau `ditolak` dan halaman statusnya ikut berubah.
+   Terakhir jalankan [migrasi kejadian](supabase/migrations/202611170002_create_wana_incidents.sql) dan [seed 63 kejadian simulasi](supabase/migrations/202611170003_seed_wana_incidents.sql). Peta, detail kejadian, dan "Kejadian terbaru" membaca tabel `incidents`. Saat laporan terbit, laporan yang digabung menambah dukungan dan linimasa kejadian; laporan baru menjadi kejadian baru (ID `wr-<nomor>`). Foto dari laporan terbit tampil publik; video tidak. **Sebelum demo**, segarkan waktu data simulasi di SQL Editor: `select public.refresh_demo_incidents();` (kalau tidak, setelah 2 hari semuanya tampil sebagai "info lama").
 5. Buka `/daftar`, kirim form, lalu buka tautan verifikasi dari email. Setelah verifikasi berhasil, WANA membuka beranda dengan sesi akun aktif. Untuk menguji login dengan password, buka `/masuk` dari jendela privat yang baru.
 
 Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di **Authentication → Users** dan baris profil di **Table Editor → profiles**.
@@ -60,10 +61,11 @@ Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di
 
 ## Struktur
 
-- `lib/incidents.ts`: data simulasi dan proyeksi koordinat ke peta
+- `lib/incidents.ts`: tipe, label, dan proyeksi peta Kalimantan; `lib/incidentsDb.ts`: memuat kejadian dari Supabase
 - `components/`: ikon, logo, Tangga Bukti, penanda peta, bar navigasi, footer
 - `public/maps/`: peta Indonesia dan Kalimantan bertekstur (SVG)
 - `public/photos/`: foto hutan dari Wikimedia Commons
+- `public/photos/ilustrasi/`: 3 foto ilustrasi buatan AI (asap, api, asap dan api), dipakai di kejadian yang belum punya foto pelapor dan diberi label "Ilustrasi (dibuat AI)"
 
 ## Kredit foto (Wikimedia Commons)
 

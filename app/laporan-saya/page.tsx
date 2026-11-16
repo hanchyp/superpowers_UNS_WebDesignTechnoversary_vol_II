@@ -6,6 +6,7 @@ import { AppBar } from "@/components/Chrome";
 import { Icon } from "@/components/Icon";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import type { ReportStatus } from "@/lib/database.types";
+import { listIncidents, toLite } from "@/lib/incidentsDb";
 import { formatWIB, indicationText, reportPlace, statusText } from "@/lib/reports";
 import { supabaseServer } from "@/lib/supabase";
 
@@ -69,6 +70,8 @@ async function ReportList() {
     );
   }
 
+  const incidents = (await listIncidents()).map(toLite);
+
   return (
     <ul className="mt-6 space-y-3">
       {reports.map((r) => (
@@ -79,7 +82,7 @@ async function ReportList() {
           >
             <span className="min-w-0 flex-1">
               <span className="block text-xs font-bold text-ink-2">No. {r.code} · {formatWIB(r.created_at, true)}</span>
-              <span className="mt-1 block truncate text-[15px] font-extrabold">{indicationText[r.indication]} · {reportPlace(r)}</span>
+              <span className="mt-1 block truncate text-[15px] font-extrabold">{indicationText[r.indication]} · {reportPlace(r, incidents)}</span>
             </span>
             <span className={`shrink-0 rounded-full px-3 py-1 text-xs font-bold ${statusTone[r.status]}`}>{statusText[r.status]}</span>
             <Icon name="chevronRight" size={18} className="shrink-0 text-ink-2" />
