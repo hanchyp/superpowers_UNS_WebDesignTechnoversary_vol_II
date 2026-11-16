@@ -5,6 +5,7 @@ import Link from "next/link";
 import { useEffect, useState, type ReactNode } from "react";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import { Icon } from "@/components/Icon";
+import { ShareButton } from "@/components/ShareButton";
 import type { ReportStatus } from "@/lib/database.types";
 import { refreshReportStatus } from "../actions";
 
@@ -251,15 +252,27 @@ function Published({ incident, code }: { incident: { id: string; title: string }
               : `Pengamatanmu ditambahkan ke kejadian "${incident.title}" dan sudah tampil di peta.`}
         </p>
 
-        <div className="relative mt-8 flex w-full items-center gap-3.5 rounded-[20px] bg-[#f3f5f1] p-4 text-left">
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-leaf">
-            <Icon name="share" size={20} />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[15px] font-extrabold">Ajak warga sekitar ikut memantau</span>
-            <span className="mt-0.5 block text-[13px] font-medium text-ink-2">Bagikan peta WANA supaya lebih banyak mata ikut mengamati.</span>
-          </span>
-        </div>
+        <ShareButton
+          title={incident ? `${incident.title} · WANA` : "Peta WANA"}
+          text="Ikut pantau tanda karhutla di sekitarmu lewat WANA."
+          url={incident ? `/kejadian/${incident.id}` : "/pantau"}
+          className="relative mt-8 flex w-full items-center gap-3.5 rounded-[20px] bg-[#f3f5f1] p-4 text-left transition-colors hover:bg-tint focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
+        >
+          {(copied) => (
+            <>
+              <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-white text-leaf">
+                <Icon name={copied ? "check" : "share"} size={20} />
+              </span>
+              <span className="min-w-0 flex-1">
+                <span className="block text-[15px] font-extrabold">Ajak warga sekitar ikut memantau</span>
+                <span aria-live="polite" className="mt-0.5 block text-[13px] font-medium text-ink-2">
+                  {copied ? "Tautan disalin. Tempel di grup WhatsApp warga." : "Bagikan peta WANA supaya lebih banyak mata ikut mengamati."}
+                </span>
+              </span>
+              <Icon name="chevronRight" size={20} className="shrink-0 text-ink-2" />
+            </>
+          )}
+        </ShareButton>
 
         <Link href={incident ? `/kejadian/${incident.id}` : "/pantau"} className="btn relative mt-5 w-full bg-forest py-4 text-base font-extrabold text-white hover:bg-forest-deep">
           {incident ? "Lihat kejadian" : "Lihat peta"}

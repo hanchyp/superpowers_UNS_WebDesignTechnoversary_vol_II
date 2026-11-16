@@ -45,7 +45,7 @@ Tanggal audit: 16 November 2026
    - Catatan, jam 13:50, dan pin lokasi sudah terisi duluan.
    - **Checkbox persetujuan sudah tercentang sejak awal.** Ini tidak sah sebagai persetujuan dan harus default `false`.
 10. **Halaman status** memakai `setTimeout` 15 detik untuk pura-pura "terbit". Link "Laporan Saya" di [components/MobileTabBar.tsx:21](components/MobileTabBar.tsx) juga ditulis langsung ke WR-1029.
-11. **Tombol "Bagikan" dan "Laporkan masalah"** di halaman kejadian belum melakukan apa-apa.
+11. ~~**Tombol "Bagikan" dan "Laporkan masalah"** di halaman kejadian belum melakukan apa-apa.~~ Selesai: "Bagikan" sudah berfungsi, "Laporkan masalah" dihapus.
 12. **Form kontak** membuka draf `mailto:` ke `wana@project.com`, yang kelihatannya alamat placeholder.
 
 ### P3: Kualitas
@@ -62,7 +62,7 @@ Semua tabel dibuat lewat migrasi dengan RLS.
 - `incidents`: id, judul, wilayah, indikasi, kondisi, status review, lokasi `geography(Point)` (aktifkan **PostGIS**), radius, `published_at`. **Bisa dibaca publik** jika sudah terbit.
 - `reports`: `user_id = auth.uid()`, `incident_id` (boleh kosong), indikasi, waktu pengamatan, lokasi atau arah, catatan, `status` (`diperiksa` / `terbit` / `perlu-dilengkapi` / `ditolak`), `consent_at`. Pengguna **hanya bisa membaca dan menambah laporannya sendiri**.
 - `report_media`: path file di Storage, tipe, ukuran.
-- `incident_events` untuk linimasa, serta `incident_supports` dan `flags` untuk fitur "Laporkan masalah".
+- `incident_events` untuk linimasa, serta `incident_supports`.
 - **Storage bucket privat** `report-media` dengan policy path `{auth.uid()}/...`. Hapus EXIF/GPS dari foto, karena README menjanjikan lokasi pelapor tidak tampil ke publik.
 
 ### Tahap 2: Alur lapor

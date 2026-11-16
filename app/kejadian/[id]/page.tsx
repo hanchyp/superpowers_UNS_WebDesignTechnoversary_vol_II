@@ -6,6 +6,7 @@ import { Suspense } from "react";
 import { AppBar } from "@/components/Chrome";
 import { Icon } from "@/components/Icon";
 import { LiveMap } from "@/components/LiveMap";
+import { ShareButton } from "@/components/ShareButton";
 import { Tag } from "@/components/Status";
 import { conditionLabel, illustrationPhoto, type TimelineEntry } from "@/lib/incidents";
 import { getIncidentById, getIncidentPhotos } from "@/lib/incidentsDb";
@@ -23,11 +24,17 @@ const dot: Record<TimelineEntry["kind"], string> = {
   pertama: "bg-forest",
 };
 
-const checks = [
-  "Kemungkinan asap terlihat jelas pada 3 dari 4 foto",
-  "Waktu pengamatan dan perkiraan lokasi masuk akal",
-  "Tidak ditemukan unggahan ulang foto yang sama",
-];
+const indicationText = { asap: "asap", api: "api", keduanya: "asap dan api" } as const;
+
+function aiChecks(indication: keyof typeof indicationText, photoCount: number) {
+  return [
+    photoCount > 0
+      ? `Kemungkinan ${indicationText[indication]} terlihat pada ${photoCount > 1 ? `${photoCount} foto` : "foto"} pelapor`
+      : `Kemungkinan ${indicationText[indication]} terlihat pada bukti pelapor`,
+    "Waktu pengamatan dan perkiraan lokasi masuk akal",
+    "Tidak ditemukan unggahan ulang foto yang sama",
+  ];
+}
 
 export default function KejadianPage({ params }: PageProps<"/kejadian/[id]">) {
   return (
@@ -60,24 +67,16 @@ async function IncidentDetail({ params }: Pick<PageProps<"/kejadian/[id]">, "par
 
         <header className="mt-5 flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
           <div className="max-w-[880px]">
-            <div className="flex flex-wrap items-center gap-2.5">
-              <span className="text-xs font-semibold text-ink-2">ID kejadian {incident.id.toUpperCase()}</span>
-            </div>
-            <h1 className="mt-3 text-[28px] font-extrabold leading-[1.15] tracking-[-0.03em] md:text-[44px]">{incident.title}</h1>
+            <h1 className="text-[28px] font-extrabold leading-[1.15] tracking-[-0.03em] md:text-[44px]">{incident.title}</h1>
             <p className="mt-3 text-[13px] font-medium text-ink-2 md:text-sm">
               Diamati pertama {incident.firstSeen} · diperbarui {incident.updatedAt} ({incident.updatedAgo})
             </p>
           </div>
-          <div className="flex gap-2">
-            <button type="button" className="btn-outline px-4 py-2.5 text-[15px]">
-              <Icon name="share" size={18} />
-              Bagikan
-            </button>
-            <button type="button" className="btn px-3 py-2.5 text-[15px] text-ink-2 hover:bg-tint">
-              <Icon name="flag" size={18} />
-              Laporkan masalah
-            </button>
-          </div>
+          <ShareButton
+            title={`${incident.title} · WANA`}
+            text={`${incident.title} (${incident.place}, ${incident.region}). Pantau perkembangannya di WANA.`}
+            className="btn-outline self-start px-4 py-2.5 text-[15px] md:self-auto"
+          />
         </header>
 
         <div className="mt-7 grid gap-6 lg:grid-cols-[1fr_400px] lg:gap-8">
@@ -109,7 +108,7 @@ async function IncidentDetail({ params }: Pick<PageProps<"/kejadian/[id]">, "par
             <section className="card p-5 md:p-7">
               <h2 className="text-xl font-extrabold md:text-[22px]">Hasil pemeriksaan awal AI</h2>
               <ul className="mt-4 space-y-3">
-                {checks.map((c) => (
+                {aiChecks(incident.indication, photos.length).map((c) => (
                   <li key={c} className="flex items-center gap-3 text-[15px] font-medium md:text-base">
                     <span className="grid h-[30px] w-[30px] shrink-0 place-items-center rounded-full bg-ai-soft text-ai-ink">
                       <Icon name="check" size={16} />
