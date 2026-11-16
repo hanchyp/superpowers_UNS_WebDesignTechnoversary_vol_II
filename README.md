@@ -1,80 +1,203 @@
+<div align="center">
+
+<img src="docs/images/banner.png" alt="WANA: Pantau hutan. Bagikan pengamatan." width="100%">
+
 # WANA
 
-Peta bersama untuk melaporkan dan mengikuti indikasi kebakaran hutan dan lahan di Indonesia. Prototipe untuk TECHNOVERSARY 2. **Seluruh data adalah simulasi.**
+**Peta bersama untuk melaporkan dan mengikuti indikasi kebakaran hutan dan lahan (karhutla) di Indonesia.**
 
-Arah visual: **Hutan Riang**. Ceria di halaman cerita (Beranda), tenang dan jernih di halaman alat (Pantau, Detail, Lapor, Status).
+[![Live Demo](https://img.shields.io/badge/Live_Demo-wana--project.vercel.app-0e4d2c?style=for-the-badge&logo=vercel&logoColor=white)](https://wana-project.vercel.app/)
 
-## Menjalankan
+![Next.js](https://img.shields.io/badge/Next.js_16-000000?style=flat-square&logo=nextdotjs&logoColor=white)
+![React](https://img.shields.io/badge/React_19-149eca?style=flat-square&logo=react&logoColor=white)
+![TypeScript](https://img.shields.io/badge/TypeScript-3178c6?style=flat-square&logo=typescript&logoColor=white)
+![Tailwind CSS](https://img.shields.io/badge/Tailwind_4-06b6d4?style=flat-square&logo=tailwindcss&logoColor=white)
+![Supabase](https://img.shields.io/badge/Supabase-3ecf8e?style=flat-square&logo=supabase&logoColor=white)
+![MapLibre](https://img.shields.io/badge/MapLibre_GL-396cb2?style=flat-square&logo=maplibre&logoColor=white)
+![TECHNO VERSARY VOL. II](https://img.shields.io/badge/TECHNO_VERSARY-VOL._II-f5c430?style=flat-square)
+
+[Coba demo](https://wana-project.vercel.app/) · [Lihat peta](https://wana-project.vercel.app/pantau) · [Laporkan pengamatan](https://wana-project.vercel.app/lapor) · [Panduan setup](docs/SETUP.md)
+
+</div>
+
+> [!TIP]
+> **Juri dan penguji tidak perlu mendaftar.** Buka [halaman masuk](https://wana-project.vercel.app/masuk), lalu klik **Masuk dengan akun demo**.
+
+> [!NOTE]
+> WANA adalah prototipe lomba. **Seluruh kejadian di peta adalah data simulasi**, dan pemeriksaan AI juga disimulasikan.
+
+---
+
+## 🔥 Masalah
+
+Setiap musim kemarau, kebakaran hutan dan lahan gambut kembali muncul di Sumatra, Kalimantan, dan wilayah lain di Indonesia. Warga sekitar sering menjadi yang pertama melihat asap atau api, tetapi informasinya:
+
+- **tercecer** di grup chat dan media sosial, tanpa lokasi yang jelas;
+- **sulit dipercaya**, karena foto lama atau foto dari tempat lain mudah tersebar ulang;
+- **cepat basi**, karena tidak ada yang tahu apakah api masih menyala atau sudah padam.
+
+## 🌱 Solusi
+
+**WANA** mengumpulkan pengamatan warga ke **satu peta bersama**. Setiap laporan diperiksa sebelum tampil, laporan untuk lokasi yang sama digabung menjadi satu kejadian, dan setiap kejadian menunjukkan **seberapa kuat buktinya** serta **seberapa baru informasinya**.
+
+<div align="center">
+
+| 👀 **Amati** | 🤖 **Diperiksa** | 🗺️ **Dilengkapi** |
+|:---:|:---:|:---:|
+| Lihat asap atau api? Potret dari tempat aman, lalu tandai lokasi atau arahnya. | AI memeriksa foto, waktu, dan lokasi. Lolos berarti layak tampil, belum berarti terverifikasi. | Laporan tampil di peta, dan warga lain bisa menambah pengamatan di kejadian yang sama. |
+
+</div>
+
+## 🎬 Demo
+
+<div align="center">
+<img src="docs/images/demo.gif" alt="Alur melapor: peta, isi form 3 langkah, kirim, diperiksa, lalu lolos dan tampil di peta" width="100%">
+<sub>Dari peta, isi form 3 langkah, kirim, lalu laporan diperiksa dan lolos dalam ±12 detik.</sub>
+</div>
+
+## ✨ Fitur utama
+
+### 🗺️ Peta Pantau Wilayah
+
+Peta nasional dengan penanda yang dikelompokkan (cluster), filter kondisi (*masih berlangsung*, *mereda*, *belum diketahui*, *info lama*), daftar kejadian, dan popover ringkas. Kejadian yang tidak diperbarui lebih dari 48 jam otomatis ditandai **info lama**, supaya peta tidak menyesatkan.
+
+<img src="docs/images/pantau.png" alt="Halaman Pantau Wilayah: peta nasional dan daftar kejadian" width="100%">
+
+### 📸 Lapor dalam 3 langkah
+
+Form pendek yang aman dan menjaga privasi pelapor:
+
+- **Pengamatan**: pilih *asap*, *api*, atau *keduanya*, waktu kejadian, dan hingga 4 foto/video.
+- **Lokasi**: taruh titik perkiraan sumber, atau cukup posisi pengamat + arah asap kalau tidak tahu titik pastinya.
+- **Tinjau**: kalau ada kejadian serupa di dekat titik itu, WANA menawarkan untuk **menggabungkan** laporan, sehingga tidak muncul duplikat.
+
+Foto dikecilkan otomatis (maks. 1920 px), dan **data lokasi di dalam foto (EXIF/GPS) dibuang** sebelum diunggah.
+
+<img src="docs/images/lapor.png" alt="Form lapor dalam 3 langkah di ponsel" width="100%">
+
+### ⏱️ Status laporan secara langsung
+
+Setelah dikirim, pelapor bisa mengikuti setiap tahap pemeriksaan: kelengkapan data, kewajaran waktu dan lokasi, indikasi visual pada foto, dan pencarian kejadian serupa. Halaman diperbarui otomatis sampai laporan **lolos dan tampil di peta**, atau diminta untuk **dilengkapi**.
+
+<img src="docs/images/status.png" alt="Status laporan: sedang diperiksa lalu lolos dan tampil di peta" width="100%">
+
+### 📋 Detail kejadian yang transparan
+
+Setiap kejadian punya galeri foto, ringkasan pengamatan, **hasil pemeriksaan awal AI beserta keterbatasannya**, area perkiraan sumber, dan **linimasa** dari laporan pertama sampai pengamatan terbaru. Identitas pelapor dan lokasi pengamat tidak pernah ditampilkan ke publik.
+
+<details>
+<summary><b>Lihat tangkapan layar halaman detail</b></summary>
+<br>
+<img src="docs/images/detail.png" alt="Halaman detail kejadian Pulang Pisau" width="100%">
+</details>
+
+### 🧭 Lapisan bukti yang jujur
+
+WANA membedakan dengan tegas antara *layak tampil* dan *terverifikasi*:
+
+| Tingkat | Artinya |
+|---|---|
+| 🔵 **Lolos AI** | Foto, waktu, dan lokasi masuk akal. Ini syarat tampil di peta, **bukan** verifikasi. |
+| 🟢 **Didukung warga** | Ada pengamatan mandiri dari akun lain untuk kejadian yang sama. |
+| ⚪ **Terverifikasi petugas** | Dikonfirmasi pihak berwenang (rencana pengembangan). |
+
+### 📱 Mobile-first
+
+Dirancang untuk dipakai di lapangan lewat ponsel: bottom sheet di peta, tab bar bawah, tombol besar, dan pengingat keselamatan (*"Ambil foto dari tempat aman"*, *"Hubungi 112"*) di titik-titik yang tepat.
+
+<img src="docs/images/mobile.png" alt="Tampilan WANA di ponsel: beranda, peta, dan detail kejadian" width="100%">
+
+## 🔄 Alur laporan
+
+```mermaid
+flowchart LR
+    A([👀 Warga melihat<br/>asap atau api]) --> B[📸 Isi form<br/>3 langkah]
+    B --> C{🤖 Pemeriksaan<br/>awal AI}
+    C -- Perlu dilengkapi --> B
+    C -- Ditolak --> X([❌ Tidak tampil])
+    C -- Lolos --> D{Ada kejadian<br/>serupa di dekatnya?}
+    D -- Ya --> E[➕ Digabung:<br/>dukungan + linimasa bertambah]
+    D -- Tidak --> F[📍 Kejadian baru<br/>di peta]
+    E --> G([🗺️ Tampil di Peta Pantau])
+    F --> G
+```
+
+## 🏗️ Arsitektur
+
+```mermaid
+flowchart LR
+    U[📱 Browser<br/>desktop & ponsel] -->|HTTPS| N
+
+    subgraph V[Vercel]
+      N[Next.js 16 App Router<br/>Server Components + Server Actions]
+    end
+
+    subgraph SB[Supabase]
+      AU[Auth<br/>email + verifikasi]
+      DB[(Postgres + RLS<br/>reports · incidents · profiles)]
+      ST[Storage<br/>bucket privat report-media]
+    end
+
+    N --> AU
+    N --> DB
+    N --> ST
+    U -->|tile peta| OFM[OpenFreeMap<br/>+ MapLibre GL]
+```
+
+## 🧰 Teknologi
+
+| Lapisan | Teknologi |
+|---|---|
+| Framework | **Next.js 16** (App Router, Server Actions), **React 19**, TypeScript |
+| Tampilan | **Tailwind CSS 4**, Motion (animasi), Plus Jakarta Sans |
+| Peta | **MapLibre GL** + **Supercluster**, tile dari OpenFreeMap / OpenStreetMap |
+| Backend | **Supabase**: Auth, Postgres dengan Row Level Security, Storage |
+| Hosting | **Vercel** |
+
+## 🚀 Menjalankan secara lokal
 
 ```bash
+git clone https://github.com/hanchyp/wana.git
+cd wana
 npm install
+cp .env.example .env.local   # isi URL & publishable key Supabase
 npm run dev
 ```
 
-Buka http://localhost:3000.
+Buka http://localhost:3000. Setup Supabase lengkap (auth, template email, migrasi, akun demo) ada di **[docs/SETUP.md](docs/SETUP.md)**.
 
-## Supabase Auth
+## 📁 Struktur proyek
 
-1. Salin `.env.example` ke `.env.local`. Isi Project URL dan publishable key dari dialog **Connect** pada project Supabase.
-2. Di **Authentication → Providers → Email**, aktifkan Email dan **Confirm email**. Di **URL Configuration**, atur **Site URL** ke `http://localhost:3000` saat pengujian lokal atau URL HTTPS WANA untuk deployment.
-3. Di **Authentication → Email Templates → Confirm signup**, ubah tautan verifikasi menjadi:
+```
+app/                 # Rute Next.js: beranda, pantau, kejadian, lapor, laporan-saya, auth
+components/          # Peta, navigasi, kartu status, maskot, form akun
+lib/                 # Tipe & label kejadian, akses Supabase, kompresi media
+supabase/migrations/ # Skema, RLS, simulasi pemeriksaan AI, seed 63 kejadian
+public/              # Logo, maskot, foto, video hero, peta SVG
+docs/                # Panduan setup & gambar README
+```
 
-   ```html
-   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}">Verifikasi akun WANA</a>
-   ```
+## 🛣️ Rencana pengembangan
 
-   Lakukan hal yang sama di **Reset Password** supaya fitur **Lupa password** (`/lupa-password`) berfungsi:
+- [ ] Pemeriksaan gambar dengan model AI sungguhan (deteksi asap/api, deteksi foto daur ulang)
+- [ ] Integrasi titik panas satelit (mis. NASA FIRMS) sebagai lapisan pembanding
+- [ ] Verifikasi oleh petugas (BPBD / Manggala Agni) untuk tingkat **Terverifikasi**
+- [ ] Notifikasi kejadian baru di sekitar wilayah pengguna
+- [ ] Mode offline untuk area dengan sinyal lemah
 
-   ```html
-   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery">Atur password baru WANA</a>
-   ```
+## 👥 Tim
 
-   Tautan itu membuka `/atur-password` untuk membuat password baru. Setelah verifikasi pendaftaran, WANA mengembalikan pengguna ke halaman tempat ia mulai mendaftar (selama dibuka di browser yang sama).
-
-4. Jalankan [migrasi profil](supabase/migrations/202611160001_create_wana_profiles.sql) di **Supabase → SQL Editor**. Migrasi membuat profil untuk akun baru dan akun lama, serta membatasi akses profil ke pemiliknya.
-   Lalu jalankan [migrasi laporan](supabase/migrations/202611170001_create_wana_reports.sql): tabel `reports` dan `report_media`, bucket privat `report-media` (maks. 25 MB, JPEG/WebP/PNG/MP4/MOV/WebM), RLS (pelapor hanya melihat miliknya, tidak bisa mengubah status), batas 10 laporan per jam, dan fungsi `advance_report_review` yang **menyimulasikan** pemeriksaan AI (terbit ~12 detik setelah dikirim). Untuk demo, ubah kolom `status` sebuah laporan di **Table Editor → reports** menjadi `perlu-dilengkapi` atau `ditolak` dan halaman statusnya ikut berubah.
-   Terakhir jalankan [migrasi kejadian](supabase/migrations/202611170002_create_wana_incidents.sql) dan [seed 63 kejadian simulasi](supabase/migrations/202611170003_seed_wana_incidents.sql). Peta, detail kejadian, dan "Kejadian terbaru" membaca tabel `incidents`. Saat laporan terbit, laporan yang digabung menambah dukungan dan linimasa kejadian; laporan baru menjadi kejadian baru (ID `wr-<nomor>`). Foto dari laporan terbit tampil publik; video tidak. **Sebelum demo**, segarkan waktu data simulasi di SQL Editor: `select public.refresh_demo_incidents();` (kalau tidak, setelah 2 hari semuanya tampil sebagai "info lama").
-5. Buka `/daftar`, kirim form, lalu buka tautan verifikasi dari email. Setelah verifikasi berhasil, WANA membuka beranda dengan sesi akun aktif. Untuk menguji login dengan password, buka `/masuk` dari jendela privat yang baru.
-
-Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di **Authentication → Users** dan baris profil di **Table Editor → profiles**.
-
-### Akun demo
-
-1. Di **Supabase → Authentication → Users → Add user → Create new user**, buat akun `wana@gmail.com` dengan password khusus demo dan centang **Auto Confirm User**.
-2. Isi `WANA_DEMO_PASSWORD` di `.env.local` dengan password yang sama. Untuk deployment demo, tambahkan variabel itu di pengaturan environment hosting.
-3. Jalankan ulang aplikasi dan klik **Masuk dengan akun demo** di `/masuk`. Login demo berjalan di server, jadi password demo tidak pernah dikirim ke browser.
-
-## Halaman
-
-| Rute | Isi |
-|---|---|
-| `/` | Beranda: hero foto, kemampuan, contoh pengamatan, kejadian terbaru, tiga langkah |
-| `/pantau` | Peta nasional + daftar kejadian, popover, toggle peta/daftar; mobile memakai bottom sheet |
-| `/kejadian/[id]` | Detail kejadian: galeri, ringkasan, hasil pemeriksaan AI, linimasa, Tangga Bukti |
-| `/lapor` | Form 3 langkah: Pengamatan → Lokasi → Tinjau (`?kejadian=<id>` untuk menambah pengamatan). Foto dikompresi (maks. 1920 px, EXIF/GPS dibuang) lalu diunggah ke Supabase Storage; laporan disimpan di tabel `reports` |
-| `/laporan-saya` | Daftar laporan milik pengguna yang masuk |
-| `/laporan-saya/[kode]` | Status laporan dari database (mis. `/laporan-saya/WR-1032`), diperbarui otomatis tiap 2 detik selama diperiksa |
-| `/daftar` | Buat akun Supabase Auth dan verifikasi email |
-| `/masuk` | Masuk dengan email dan password |
-| `/lupa-password` | Minta tautan reset password lewat email |
-| `/atur-password` | Buat password baru setelah membuka tautan reset |
-
-## Struktur
-
-- `lib/incidents.ts`: tipe, label, dan proyeksi peta Kalimantan; `lib/incidentsDb.ts`: memuat kejadian dari Supabase
-- `components/`: ikon, logo, Tangga Bukti, penanda peta, bar navigasi, footer
-- `public/maps/`: peta Indonesia dan Kalimantan bertekstur (SVG)
-- `public/photos/`: foto hutan dari Wikimedia Commons
-- `public/photos/ilustrasi/`: 3 foto ilustrasi buatan AI (asap, api, asap dan api), dipakai di kejadian yang belum punya foto pelapor dan diberi label "Ilustrasi (dibuat AI)"
-
-## Kredit foto (Wikimedia Commons)
-
-| File | Fotografer | Lisensi |
+| Nama | Peran | GitHub |
 |---|---|---|
-| rawa-gambut-udara.jpg | Ruanda Agung Sugardiman/AusAID | CC BY 2.0 |
-| sebangau-rawa.jpg, sebangau-peat-dome.jpg | Mankdhay rahman | CC BY-SA 4.0 |
-| sebangau-panorama.jpg | Ariesandy0812 | CC BY-SA 4.0 |
-| kapuas.jpg | Achmad Rabin Taim | CC BY 2.0 |
-| hutan-lestari.jpg | Arbasbarong | CC BY-SA 4.0 |
+| Farhan Cahya Permana | Fullstack Developer | [@hanchyp](https://github.com/hanchyp) |
+| Alissa Tukhriyatun Nufus | Fullstack Developer | [@aluryy](https://github.com/aluryy) |
 
-WANA bukan layanan darurat. Untuk bahaya langsung, hubungi 112 atau pemadam kebakaran 113.
+---
+
+<div align="center">
+
+**WANA bukan layanan darurat.** Untuk bahaya langsung, hubungi **112** atau pemadam kebakaran **113**.
+
+Dibuat untuk **TECHNO VERSARY VOL. II** 🌳
+
+</div>
