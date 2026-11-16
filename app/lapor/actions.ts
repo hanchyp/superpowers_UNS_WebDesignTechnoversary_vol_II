@@ -101,6 +101,7 @@ export async function createReport(input: NewReport): Promise<CreateReportResult
   );
   if (mediaError) {
     console.error("[lapor] insert report_media gagal:", mediaError.code, mediaError.message);
+    await supabase.from("reports").delete().eq("id", report.id);
     return fail("Bukti belum bisa dicatat. Coba lagi.");
   }
 
@@ -109,10 +110,27 @@ export async function createReport(input: NewReport): Promise<CreateReportResult
     const { data, error: signError } = await supabase.storage.from(BUCKET).createSignedUploadUrl(f.path);
     if (signError || !data) {
       console.error("[lapor] createSignedUploadUrl gagal:", signError?.message);
+      await supabase.from("reports").delete().eq("id", report.id);
       return fail("Upload bukti belum bisa disiapkan. Coba lagi.");
     }
     uploads.push({ path: data.path, token: data.token, index: f.index });
   }
 
   return { ok: true, code: report.code, uploads };
+}
+
+/**
+ * Batalkan laporan yang buktinya gagal diunggah, supaya tidak terbit tanpa foto.
+ * RLS hanya mengizinkan pemilik menghapus laporan yang masih "diperiksa".
+ */
+export async function cancelReport(code: string): Promise<void> {
+  if (!/^WR-\d{1,9}$/.test(code)) return;
+  const supabase = await supabaseServer(true);
+  if (!supabase) return;
+  const { data: report } = await supabase.from("reports").select("id").eq("code", code).eq("status", "diperiksa").maybeSingle();
+  if (!report) return;
+  const { data: media } = await supabase.from("report_media").select("path").eq("report_id", report.id);
+  if (media?.length) await supabase.storage.from(BUCKET).remove(media.map((m) => m.path));
+  const { error } = await supabase.from("reports").delete().eq("id", report.id);
+  if (error) console.error("[lapor] batal laporan gagal:", error.code, error.message);
 }

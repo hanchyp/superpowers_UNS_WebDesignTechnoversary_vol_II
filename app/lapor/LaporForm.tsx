@@ -11,7 +11,7 @@ import type { IncidentLite as Incident, Indication } from "@/lib/incidents";
 import { checkVideo, compressImage, formatBytes, MAX_FILE_MB, MAX_FILES, MAX_VIDEO_SECONDS } from "@/lib/media";
 import { supabaseBrowser } from "@/lib/supabaseBrowser";
 import { useMediaQuery } from "@/lib/useMediaQuery";
-import { createReport } from "./actions";
+import { cancelReport, createReport } from "./actions";
 
 /**
  * Bukti yang dipilih. Foto langsung dikompresi saat dipilih ("memproses" -> "siap"),
@@ -120,7 +120,11 @@ export function LaporForm({ incidents, relatedId, relatedTitle }: { incidents: I
         setSending(`Mengunggah bukti ${n + 1} dari ${result.uploads.length}…`);
         const e = ready[up.index];
         const { error } = await storage.uploadToSignedUrl(up.path, up.token, e.blob!, { contentType: e.mime });
-        if (error) throw new Error(`Bukti ${n + 1} gagal diunggah. Laporan ${result.code} sudah tersimpan; coba kirim ulang buktinya nanti.`);
+        if (error) {
+          // Jangan biarkan laporan terbit tanpa bukti: batalkan, lalu pengguna bisa mengirim ulang.
+          await cancelReport(result.code).catch(() => {});
+          throw new Error(`Bukti ${n + 1} gagal diunggah, jadi laporan belum dikirim. Periksa koneksi lalu tekan Kirim lagi.`);
+        }
       }
 
       setSending("Membuka status laporan…");
