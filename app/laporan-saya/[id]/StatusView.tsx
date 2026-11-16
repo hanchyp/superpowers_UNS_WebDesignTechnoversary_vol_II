@@ -2,13 +2,13 @@
 
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useState } from "react";
-import { AppBar, MobileTabBar } from "@/components/Chrome";
+import { useEffect, useState, type ReactNode } from "react";
+import { MobileTabBar } from "@/components/MobileTabBar";
 import { Icon } from "@/components/Icon";
 
 export type ReportState = "diperiksa" | "terbit" | "perlu-dilengkapi";
 
-export function StatusView({ reportId, initial, autoAdvance }: { reportId: string; initial: ReportState; autoAdvance: boolean }) {
+export function StatusView({ header, reportId, initial, autoAdvance }: { header: ReactNode; reportId: string; initial: ReportState; autoAdvance: boolean }) {
   const [state, setState] = useState<ReportState>(initial);
 
   // Simulasi demo: pemeriksaan AI selesai beberapa detik setelah halaman dibuka.
@@ -20,7 +20,7 @@ export function StatusView({ reportId, initial, autoAdvance }: { reportId: strin
 
   return (
     <div className="flex min-h-[100svh] flex-col bg-tint">
-      <AppBar search={false} />
+      {header}
       {state === "terbit" ? <Published /> : <Checking reportId={reportId} state={state} />}
       <MobileTabBar active="laporan" />
     </div>

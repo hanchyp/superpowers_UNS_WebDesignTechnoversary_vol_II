@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { AppBar } from "@/components/Chrome";
 import { StatusView, type ReportState } from "./StatusView";
 
 export const metadata: Metadata = { title: "Status laporan" };
@@ -18,5 +19,5 @@ async function StatusWithParams({ params, searchParams }: PageProps<"/laporan-sa
   const { id } = await params;
   const { status } = await searchParams;
   const initial = states.find((s) => s === status);
-  return <StatusView reportId={id} initial={initial ?? "diperiksa"} autoAdvance={!initial} />;
+  return <StatusView header={<AppBar search={false} />} reportId={id} initial={initial ?? "diperiksa"} autoAdvance={!initial} />;
 }

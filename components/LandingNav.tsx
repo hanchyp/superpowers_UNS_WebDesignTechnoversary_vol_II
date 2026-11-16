@@ -1,12 +1,16 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 import { siteLinks } from "@/lib/siteLinks";
 import { Logo } from "./Brand";
 import { Icon } from "./Icon";
 
-export function LandingNav() {
+export function LandingNav({ desktopAccount, mobileName, mobileAccount }: {
+  desktopAccount: ReactNode;
+  mobileName: ReactNode;
+  mobileAccount: ReactNode;
+}) {
   const [open, setOpen] = useState(false);
   return (
     <header className="absolute inset-x-0 top-0 z-30">
@@ -20,13 +24,9 @@ export function LandingNav() {
           ))}
         </nav>
         <div className="hidden items-center gap-5 md:flex">
-          <Link href="/masuk" className="text-base font-bold text-white">
-            Masuk
-          </Link>
-          <Link href="/daftar" className="rounded-full bg-white px-5 py-2.5 text-base font-bold text-forest hover:bg-sprout">
-            Daftar
-          </Link>
+          {desktopAccount}
         </div>
+        {mobileName}
         <button
           type="button"
           onClick={() => setOpen((v) => !v)}
@@ -49,10 +49,7 @@ export function LandingNav() {
               {l.label}
             </Link>
           ))}
-          <div className="mt-2 grid grid-cols-2 gap-2">
-            <Link href="/masuk" className="btn-outline py-3">Masuk</Link>
-            <Link href="/daftar" className="btn-primary py-3">Daftar</Link>
-          </div>
+          {mobileAccount}
         </div>
       )}
     </header>

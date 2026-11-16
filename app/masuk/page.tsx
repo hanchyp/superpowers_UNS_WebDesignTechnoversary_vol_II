@@ -1,39 +1,60 @@
 import type { Metadata } from "next";
-import Image from "next/image";
 import Link from "next/link";
-import { Logo } from "@/components/Brand";
+import { redirect } from "next/navigation";
+import { Suspense } from "react";
+import { AccountForm } from "@/components/AccountForm";
+import { AuthPage } from "@/components/AuthPage";
+import { loginReturn } from "@/lib/loginReturn";
+import { supabaseServer } from "@/lib/supabase";
 
 export const metadata: Metadata = { title: "Masuk" };
 
-export default function MasukPage() {
+const demoEmail = "wana@gmail.com";
+
+export default function MasukPage({ searchParams }: PageProps<"/masuk">) {
   return (
-    <main className="grid min-h-[100svh] md:grid-cols-2">
-      <div className="relative hidden md:block">
-        <Image src="/photos/hutan-lestari.jpg" alt="Hutan tropis Indonesia" fill sizes="50vw" className="object-cover" />
-        <div className="absolute inset-0 bg-gradient-to-t from-forest/85 to-transparent" />
-        <p className="absolute bottom-12 left-12 max-w-[420px] text-4xl font-extrabold leading-tight tracking-[-0.03em] text-white">
-          Satu foto darimu bisa bantu banyak orang bersiap.
-        </p>
-      </div>
-      <div className="flex flex-col justify-center px-6 py-10 md:px-16">
-        <Logo />
-        <h1 className="mt-10 text-3xl font-extrabold tracking-[-0.02em]">Masuk untuk melapor</h1>
-        <p className="mt-2 text-base font-medium text-ink-2">
-          Melihat peta tidak perlu akun. Untuk mengirim laporan, masuk dulu, lalu kami kembalikan ke form.
-        </p>
-        <form className="mt-8 max-w-[420px] space-y-4" action="/lapor">
-          <label className="block">
-            <span className="text-sm font-bold">Email</span>
-            <input type="email" name="email" placeholder="nama@contoh.id" className="mt-1.5 w-full rounded-2xl border-[1.5px] border-control bg-white px-4 py-3.5 text-base outline-none focus:border-leaf" />
-          </label>
-          <button type="submit" className="btn-primary w-full py-3.5 text-base">
-            Kirim tautan masuk
-          </button>
-        </form>
-        <Link href="/" className="mt-10 text-[15px] font-bold text-leaf">
-          Kembali ke beranda
-        </Link>
-      </div>
-    </main>
+    <AuthPage title="Masuk" description="Gunakan email dan password akun WANA kamu.">
+      <Suspense>
+        <LoginForm searchParams={searchParams} />
+      </Suspense>
+    </AuthPage>
+  );
+}
+
+async function LoginForm({ searchParams }: Pick<PageProps<"/masuk">, "searchParams">) {
+  const destination = loginReturn((await searchParams).kembali);
+  const register = `/daftar?${new URLSearchParams({ kembali: destination })}`;
+
+  async function signIn(_: { message: string }, form: FormData) {
+    "use server";
+
+    const email = String(form.get("email") ?? "").trim();
+    const password = String(form.get("password") ?? "");
+    if (!email || !password) return { message: "Isi email dan password." };
+
+    const supabase = await supabaseServer(true);
+    if (!supabase) return { message: "Layanan masuk belum dikonfigurasi." };
+
+    const { error } = await supabase.auth.signInWithPassword({ email, password });
+    if (error) {
+      console.error("[masuk] signInWithPassword gagal:", error.code ?? error.status, error.message);
+      if (error.code === "email_not_confirmed") {
+        return { message: "Buka tautan verifikasi di email kamu sebelum masuk." };
+      }
+      return { message: "Belum bisa masuk. Periksa email dan password, lalu coba lagi." };
+    }
+    redirect(destination);
+  }
+
+  const demoPassword = process.env.WANA_DEMO_PASSWORD;
+
+  return (
+    <>
+      <AccountForm action={signIn} demo={demoPassword ? { email: demoEmail, password: demoPassword } : undefined} />
+      <Link href={register} className="mt-8 text-[15px] font-bold text-leaf">Belum punya akun? Daftar</Link>
+      <Link href={destination} className="mt-4 text-[15px] font-bold text-leaf">
+        {destination === "/" ? "Kembali ke beranda" : "Kembali ke halaman sebelumnya"}
+      </Link>
+    </>
   );
 }

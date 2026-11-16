@@ -13,6 +13,27 @@ npm run dev
 
 Buka http://localhost:3000.
 
+## Supabase Auth
+
+1. Salin `.env.example` ke `.env.local`. Isi Project URL dan publishable key dari dialog **Connect** pada project Supabase.
+2. Di **Authentication → Providers → Email**, aktifkan Email dan **Confirm email**. Di **URL Configuration**, atur **Site URL** ke `http://localhost:3000` saat pengujian lokal atau URL HTTPS WANA untuk deployment.
+3. Di **Authentication → Email Templates → Confirm signup**, ubah tautan verifikasi menjadi:
+
+   ```html
+   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}">Verifikasi akun WANA</a>
+   ```
+
+4. Jalankan [migrasi profil](supabase/migrations/202611160001_create_wana_profiles.sql) di **Supabase → SQL Editor**. Migrasi membuat profil untuk akun baru dan akun lama, serta membatasi akses profil ke pemiliknya.
+5. Buka `/daftar`, kirim form, lalu buka tautan verifikasi dari email. Setelah verifikasi berhasil, WANA membuka beranda dengan sesi akun aktif. Untuk menguji login dengan password, buka `/masuk` dari jendela privat yang baru.
+
+Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di **Authentication → Users** dan baris profil di **Table Editor → profiles**.
+
+### Akun demo
+
+1. Di **Supabase → Authentication → Users → Add user → Create new user**, buat akun `wana@gmail.com` dengan password khusus demo dan centang **Auto Confirm User**.
+2. Isi `WANA_DEMO_PASSWORD` di `.env.local` dengan password yang sama. Untuk deployment demo, tambahkan variabel itu di pengaturan environment hosting.
+3. Jalankan ulang aplikasi dan klik **Coba akun demo** di `/masuk` untuk mengisi form, lalu klik **Masuk**. Password demo tersedia di halaman login, jadi gunakan kredensial khusus demo.
+
 ## Halaman
 
 | Rute | Isi |
@@ -22,7 +43,8 @@ Buka http://localhost:3000.
 | `/kejadian/[id]` | Detail kejadian: galeri, ringkasan, hasil pemeriksaan AI, linimasa, Tangga Bukti |
 | `/lapor` | Form 3 langkah: Pengamatan → Lokasi → Tinjau (`?kejadian=<id>` untuk menambah pengamatan) |
 | `/laporan-saya/[id]` | Status laporan; otomatis berubah dari "diperiksa" ke "terbit" untuk demo. `?status=perlu-dilengkapi` atau `?status=terbit` untuk state tertentu |
-| `/masuk` | Masuk (prototipe) |
+| `/daftar` | Buat akun Supabase Auth dan verifikasi email |
+| `/masuk` | Masuk dengan email dan password |
 
 ## Struktur
 

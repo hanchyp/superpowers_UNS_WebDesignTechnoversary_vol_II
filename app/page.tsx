@@ -1,5 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
+import { AccountNav } from "@/components/AccountNav";
+import { AuthLink } from "@/components/AuthLink";
 import { EmergencyStrip, SiteFooter } from "@/components/Chrome";
 import { HeroVideo } from "@/components/HeroVideo";
 import { Icon } from "@/components/Icon";
@@ -38,7 +40,35 @@ export default function Home() {
         />
         <HeroVideo />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#0a1c12]/78 via-[#0a1c12]/65 to-[#0a1c12]/85" />
-        <LandingNav />
+        <LandingNav
+          desktopAccount={
+            <AccountNav
+              tone="dark"
+              signedOut={
+                <>
+                  <AuthLink href="/masuk" className="text-base font-bold text-white">Masuk</AuthLink>
+                  <AuthLink href="/daftar" className="rounded-full bg-white px-5 py-2.5 text-base font-bold text-forest hover:bg-sprout">Daftar</AuthLink>
+                </>
+              }
+            />
+          }
+          mobileName={
+            <div className="ml-auto mr-3 md:hidden">
+              <AccountNav tone="dark" compact />
+            </div>
+          }
+          mobileAccount={
+            <AccountNav
+              showSignedIn={false}
+              signedOut={
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  <AuthLink href="/masuk" className="btn-outline py-3">Masuk</AuthLink>
+                  <AuthLink href="/daftar" className="btn-primary py-3">Daftar</AuthLink>
+                </div>
+              }
+            />
+          }
+        />
         <div className="mx-auto flex w-full max-w-[900px] flex-col items-center px-6 pb-16 pt-28 text-center">
           <h1 className="mt-6 text-[40px] font-extrabold leading-[1.12] tracking-[-0.03em] text-white sm:text-6xl md:text-[72px] md:leading-[1.1]">
             Pantau hutan.

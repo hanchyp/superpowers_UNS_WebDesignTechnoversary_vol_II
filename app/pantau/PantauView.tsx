@@ -1,8 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useLayoutEffect, useRef, useState } from "react";
-import { AppBar, MobileTabBar } from "@/components/Chrome";
+import { useLayoutEffect, useRef, useState, type ReactNode } from "react";
+import { MobileTabBar } from "@/components/MobileTabBar";
 import { Icon } from "@/components/Icon";
 import { INDONESIA_VIEW, LiveMap } from "@/components/LiveMap";
 import { IncidentTags, IndicationGlyph } from "@/components/Status";
@@ -25,7 +25,7 @@ function matchesFilter(i: Incident, f: StatusFilter) {
   return !i.stale && i.condition === f;
 }
 
-export function PantauView() {
+export function PantauView({ header }: { header: ReactNode }) {
   const isDesktop = useIsDesktop();
   const [selectedId, setSelectedId] = useState<string | undefined>(featuredId);
   const [view, setView] = useState<"peta" | "daftar">("peta");
@@ -35,7 +35,7 @@ export function PantauView() {
 
   return (
     <div className="flex h-[100svh] flex-col overflow-hidden">
-      <AppBar active="pantau" />
+      {header}
       <div className="relative flex min-h-0 flex-1">
         {/* Panel kiri (desktop) */}
         <aside className="hidden w-[420px] shrink-0 flex-col border-r border-line bg-white lg:flex">

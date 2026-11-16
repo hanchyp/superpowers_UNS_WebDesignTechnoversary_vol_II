@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { AppBar } from "@/components/Chrome";
 import { PantauView } from "./PantauView";
 
 export const metadata: Metadata = {
@@ -7,5 +8,5 @@ export const metadata: Metadata = {
 };
 
 export default function PantauPage() {
-  return <PantauView />;
+  return <PantauView header={<AppBar active="pantau" />} />;
 }

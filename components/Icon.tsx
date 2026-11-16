@@ -41,6 +41,8 @@ const paths = {
   inbox:
     "M4 13.5l2.5-8A1.5 1.5 0 0 1 8 4.5h8a1.5 1.5 0 0 1 1.5 1l2.5 8v5a1.5 1.5 0 0 1-1.5 1.5h-13A1.5 1.5 0 0 1 4 18.5z M4 13.5h4.5l1.5 2.5h4l1.5-2.5H20",
   arrowRight: "M4 12h16 M14 6l6 6-6 6",
+  chevronDown: "M6 9l6 6 6-6",
+  logout: "M14 4h4.5A1.5 1.5 0 0 1 20 5.5v13a1.5 1.5 0 0 1-1.5 1.5H14 M10 16l-4-4 4-4 M6 12h10",
 } as const;
 
 export type IconName = keyof typeof paths;
