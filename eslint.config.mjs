@@ -12,6 +12,8 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Salinan worker MapLibre dari node_modules (lihat postinstall), bukan kode kita.
+    "public/maplibre-gl-worker.mjs",
   ]),
 ]);
 

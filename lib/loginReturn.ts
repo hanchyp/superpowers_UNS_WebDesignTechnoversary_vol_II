@@ -11,7 +11,7 @@ export function loginReturn(value: string | string[] | undefined) {
   if (
     destination.origin !== base ||
     pathname.startsWith("//") ||
-    ["/masuk", "/daftar"].includes(pathname.replace(/\/+$/, ""))
+    ["/masuk", "/daftar", "/lupa-password", "/atur-password"].includes(pathname.replace(/\/+$/, ""))
   ) {
     return "/";
   }

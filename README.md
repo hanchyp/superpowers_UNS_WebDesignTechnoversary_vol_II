@@ -23,6 +23,14 @@ Buka http://localhost:3000.
    <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}">Verifikasi akun WANA</a>
    ```
 
+   Lakukan hal yang sama di **Reset Password** supaya fitur **Lupa password** (`/lupa-password`) berfungsi:
+
+   ```html
+   <a href="{{ .SiteURL }}/auth/confirm?token_hash={{ .TokenHash }}&type=recovery">Atur password baru WANA</a>
+   ```
+
+   Tautan itu membuka `/atur-password` untuk membuat password baru. Setelah verifikasi pendaftaran, WANA mengembalikan pengguna ke halaman tempat ia mulai mendaftar (selama dibuka di browser yang sama).
+
 4. Jalankan [migrasi profil](supabase/migrations/202611160001_create_wana_profiles.sql) di **Supabase → SQL Editor**. Migrasi membuat profil untuk akun baru dan akun lama, serta membatasi akses profil ke pemiliknya.
 5. Buka `/daftar`, kirim form, lalu buka tautan verifikasi dari email. Setelah verifikasi berhasil, WANA membuka beranda dengan sesi akun aktif. Untuk menguji login dengan password, buka `/masuk` dari jendela privat yang baru.
 
@@ -32,7 +40,7 @@ Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di
 
 1. Di **Supabase → Authentication → Users → Add user → Create new user**, buat akun `wana@gmail.com` dengan password khusus demo dan centang **Auto Confirm User**.
 2. Isi `WANA_DEMO_PASSWORD` di `.env.local` dengan password yang sama. Untuk deployment demo, tambahkan variabel itu di pengaturan environment hosting.
-3. Jalankan ulang aplikasi dan klik **Coba akun demo** di `/masuk` untuk mengisi form, lalu klik **Masuk**. Password demo tersedia di halaman login, jadi gunakan kredensial khusus demo.
+3. Jalankan ulang aplikasi dan klik **Masuk dengan akun demo** di `/masuk`. Login demo berjalan di server, jadi password demo tidak pernah dikirim ke browser.
 
 ## Halaman
 
@@ -45,6 +53,8 @@ Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di
 | `/laporan-saya/[id]` | Status laporan; otomatis berubah dari "diperiksa" ke "terbit" untuk demo. `?status=perlu-dilengkapi` atau `?status=terbit` untuk state tertentu |
 | `/daftar` | Buat akun Supabase Auth dan verifikasi email |
 | `/masuk` | Masuk dengan email dan password |
+| `/lupa-password` | Minta tautan reset password lewat email |
+| `/atur-password` | Buat password baru setelah membuka tautan reset |
 
 ## Struktur
 

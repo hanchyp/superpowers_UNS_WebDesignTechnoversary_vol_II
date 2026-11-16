@@ -2,9 +2,10 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Suspense } from "react";
-import { AccountForm } from "@/components/AccountForm";
+import { AccountForm, type FormState } from "@/components/AccountForm";
 import { AuthPage } from "@/components/AuthPage";
 import { loginReturn } from "@/lib/loginReturn";
+import { rememberReturn } from "@/lib/returnCookie";
 import { supabaseServer } from "@/lib/supabase";
 
 export const metadata: Metadata = { title: "Daftar" };
@@ -24,18 +25,19 @@ async function Registration({ searchParams }: Pick<PageProps<"/daftar">, "search
   const destination = loginReturn(kembali);
   const login = `/masuk?${new URLSearchParams({ kembali: destination })}`;
 
-  async function signUp(_: { message: string }, form: FormData) {
+  async function signUp(_: FormState, form: FormData): Promise<FormState> {
     "use server";
 
     const name = String(form.get("name") ?? "").trim();
     const email = String(form.get("email") ?? "").trim();
     const password = String(form.get("password") ?? "");
+    const values = { name, email };
     if (!name || name.length > 80 || !email || password.length < 8) {
-      return { message: "Isi nama, email, dan password minimal 8 karakter." };
+      return { message: "Isi nama, email, dan password minimal 8 karakter.", ...values };
     }
 
     const supabase = await supabaseServer(true);
-    if (!supabase) return { message: "Layanan pendaftaran belum dikonfigurasi." };
+    if (!supabase) return { message: "Layanan pendaftaran belum dikonfigurasi.", ...values };
 
     const { data, error } = await supabase.auth.signUp({
       email,
@@ -44,14 +46,18 @@ async function Registration({ searchParams }: Pick<PageProps<"/daftar">, "search
     });
 
     if (error && error.code !== "user_already_exists" && error.code !== "email_exists") {
+      console.error("[daftar] signUp gagal:", error.code ?? error.status, error.message);
       return {
         message: error.code === "over_email_send_rate_limit"
           ? "Pengiriman email sedang dibatasi. Coba lagi nanti."
           : "Pendaftaran belum berhasil. Periksa email dan password, lalu coba lagi.",
+        ...values,
       };
     }
 
     if (data?.session) redirect(destination);
+    // Diingat supaya /auth/confirm bisa mengembalikan pengguna ke halaman asal setelah verifikasi.
+    await rememberReturn(destination);
     return {
       sent: true,
       message: "Cek kotak masuk atau folder spam untuk tautan verifikasi. Jika email sudah terdaftar, kamu bisa langsung masuk.",

@@ -277,6 +277,8 @@ function MobileSheet({
   const collapsedH = useRef(260);
   const drag = useRef<{ startY: number; startH: number; maxH: number } | null>(null);
   const [dragH, setDragH] = useState<number | null>(null);
+  // Dihitung di event handler (bukan saat render) karena memakai ref collapsedH.
+  const [dragOpen, setDragOpen] = useState(false);
   const dragged = useRef(false);
 
   // Ingat tinggi lembar saat tertutup, jadi batas bawah saat ditarik.
@@ -297,6 +299,7 @@ function MobileSheet({
     if (Math.abs(e.clientY - d.startY) > 6) dragged.current = true;
     const h = Math.min(d.maxH, Math.max(collapsedH.current, d.startH - (e.clientY - d.startY)));
     setDragH(h);
+    setDragOpen(h > collapsedH.current + 80);
   };
   const onPointerUp = (e: React.PointerEvent) => {
     const d = drag.current;
@@ -308,7 +311,7 @@ function MobileSheet({
     setDragH(null);
   };
 
-  const showList = dragH !== null ? dragH > collapsedH.current + 80 : expanded;
+  const showList = dragH !== null ? dragOpen : expanded;
 
   return (
     <section
