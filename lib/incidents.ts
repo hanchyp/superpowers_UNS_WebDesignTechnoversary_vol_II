@@ -7,6 +7,8 @@ export type Condition = "belum-diketahui" | "berlangsung" | "mereda" | "selesai"
 
 export type TimelineEntry = {
   time: string;
+  /** "15 Nov" bila bukan hari ini; kosong untuk hari ini. */
+  day?: string;
   title: string;
   note: string;
   kind: "pertama" | "ai" | "dukungan" | "pengamatan";

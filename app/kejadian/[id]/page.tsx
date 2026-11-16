@@ -128,8 +128,11 @@ async function IncidentDetail({ params }: Pick<PageProps<"/kejadian/[id]">, "par
               <h2 className="text-xl font-extrabold md:text-[22px]">Linimasa pengamatan</h2>
               <ol className="mt-5">
                 {incident.timeline.map((t, idx) => (
-                  <li key={t.time + t.title} className="flex gap-4">
-                    <span className="w-12 shrink-0 pt-0.5 text-[13px] font-semibold text-ink-2">{t.time}</span>
+                  <li key={`${t.day ?? ""}${t.time}${t.title}${idx}`} className="flex gap-4">
+                    <span className="w-12 shrink-0 pt-0.5 text-[13px] font-semibold leading-tight text-ink-2">
+                      {t.day && <span className="block text-[11px] font-bold">{t.day}</span>}
+                      {t.time}
+                    </span>
                     <span className="flex flex-col items-center pt-1">
                       <span className={`h-4 w-4 shrink-0 rounded-full ${dot[t.kind]}`} />
                       {idx < incident.timeline.length - 1 && <span className="-my-0.5 w-[3px] flex-1 rounded-full bg-leaf" />}

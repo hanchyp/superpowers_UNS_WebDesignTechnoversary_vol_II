@@ -104,7 +104,7 @@ export function PantauView({ header, incidents, initialQuery = "" }: { header: R
 
           <Legend />
 
-          <MobileSheet items={shown} view={view} onViewChange={setView} selected={selected} onSelect={setSelectedId} />
+          <MobileSheet items={shown} searching={!!q} view={view} onViewChange={setView} selected={selected} onSelect={setSelectedId} />
         </main>
       </div>
       <MobileTabBar active="pantau" />
@@ -304,12 +304,14 @@ type SheetView = "mini" | "peta" | "daftar";
 
 function MobileSheet({
   items,
+  searching,
   view,
   onViewChange,
   selected,
   onSelect,
 }: {
   items: Incident[];
+  searching: boolean;
   view: SheetView;
   onViewChange: (v: SheetView) => void;
   selected?: Incident;
@@ -391,7 +393,7 @@ function MobileSheet({
           aria-expanded={view !== "mini"}
         />
         <button type="button" onClick={toggle} className="flex w-full items-center justify-between gap-3 text-left">
-          <h2 className="text-lg font-extrabold">{items.length} kejadian di Indonesia</h2>
+          <h2 className="text-lg font-extrabold">{items.length} kejadian {searching ? "cocok" : "di Indonesia"}</h2>
           <Icon name="chevronDown" size={20} className={`shrink-0 text-ink-2 transition-transform ${view === "daftar" ? "" : "rotate-180"}`} />
         </button>
       </div>

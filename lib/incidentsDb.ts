@@ -46,7 +46,16 @@ function agoText(iso: string, now: Date) {
 function toIncident(row: IncidentRow, events: EventRow[], now: Date): Incident {
   const timeline: TimelineEntry[] = [...events]
     .sort((a, b) => b.at.localeCompare(a.at))
-    .map((e) => ({ time: clock(new Date(e.at)), title: e.title, note: e.note, kind: e.kind as TimelineEntry["kind"] }));
+    .map((e) => {
+      const at = new Date(e.at);
+      return {
+        time: clock(at),
+        day: dayKey(at) === dayKey(now) ? undefined : at.toLocaleDateString("id-ID", { ...jakarta, day: "numeric", month: "short" }),
+        title: e.title,
+        note: e.note,
+        kind: e.kind as TimelineEntry["kind"],
+      };
+    });
   return {
     id: row.id,
     title: row.title,
