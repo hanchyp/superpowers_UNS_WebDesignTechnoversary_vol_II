@@ -95,10 +95,6 @@ async function IncidentDetail({ params }: Pick<PageProps<"/kejadian/[id]">, "par
                   sizes="(min-width: 1024px) 860px, 100vw"
                   className="object-cover"
                 />
-                <figcaption className="absolute left-3 top-3 inline-flex items-center gap-1.5 rounded-full bg-ink/75 px-3 py-1.5 text-xs font-bold text-white backdrop-blur">
-                  <Icon name="info" size={14} />
-                  Ilustrasi (dibuat AI) · belum ada foto pelapor
-                </figcaption>
               </figure>
             )}
 
