@@ -32,6 +32,7 @@ Buka http://localhost:3000.
    Tautan itu membuka `/atur-password` untuk membuat password baru. Setelah verifikasi pendaftaran, WANA mengembalikan pengguna ke halaman tempat ia mulai mendaftar (selama dibuka di browser yang sama).
 
 4. Jalankan [migrasi profil](supabase/migrations/202611160001_create_wana_profiles.sql) di **Supabase → SQL Editor**. Migrasi membuat profil untuk akun baru dan akun lama, serta membatasi akses profil ke pemiliknya.
+   Lalu jalankan [migrasi laporan](supabase/migrations/202611170001_create_wana_reports.sql): tabel `reports` dan `report_media`, bucket privat `report-media` (maks. 25 MB, JPEG/WebP/PNG/MP4/MOV/WebM), RLS (pelapor hanya melihat miliknya, tidak bisa mengubah status), batas 10 laporan per jam, dan fungsi `advance_report_review` yang **menyimulasikan** pemeriksaan AI (terbit ~12 detik setelah dikirim). Untuk demo, ubah kolom `status` sebuah laporan di **Table Editor → reports** menjadi `perlu-dilengkapi` atau `ditolak` dan halaman statusnya ikut berubah.
 5. Buka `/daftar`, kirim form, lalu buka tautan verifikasi dari email. Setelah verifikasi berhasil, WANA membuka beranda dengan sesi akun aktif. Untuk menguji login dengan password, buka `/masuk` dari jendela privat yang baru.
 
 Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di **Authentication → Users** dan baris profil di **Table Editor → profiles**.
@@ -49,8 +50,9 @@ Untuk email di luar tim Supabase, siapkan custom SMTP. Di dashboard, cek akun di
 | `/` | Beranda: hero foto, kemampuan, contoh pengamatan, kejadian terbaru, tiga langkah |
 | `/pantau` | Peta nasional + daftar kejadian, popover, toggle peta/daftar; mobile memakai bottom sheet |
 | `/kejadian/[id]` | Detail kejadian: galeri, ringkasan, hasil pemeriksaan AI, linimasa, Tangga Bukti |
-| `/lapor` | Form 3 langkah: Pengamatan → Lokasi → Tinjau (`?kejadian=<id>` untuk menambah pengamatan) |
-| `/laporan-saya/[id]` | Status laporan; otomatis berubah dari "diperiksa" ke "terbit" untuk demo. `?status=perlu-dilengkapi` atau `?status=terbit` untuk state tertentu |
+| `/lapor` | Form 3 langkah: Pengamatan → Lokasi → Tinjau (`?kejadian=<id>` untuk menambah pengamatan). Foto dikompresi (maks. 1920 px, EXIF/GPS dibuang) lalu diunggah ke Supabase Storage; laporan disimpan di tabel `reports` |
+| `/laporan-saya` | Daftar laporan milik pengguna yang masuk |
+| `/laporan-saya/[kode]` | Status laporan dari database (mis. `/laporan-saya/WR-1032`), diperbarui otomatis tiap 2 detik selama diperiksa |
 | `/daftar` | Buat akun Supabase Auth dan verifikasi email |
 | `/masuk` | Masuk dengan email dan password |
 | `/lupa-password` | Minta tautan reset password lewat email |

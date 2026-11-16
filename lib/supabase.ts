@@ -1,5 +1,6 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
+import type { Database } from "./database.types";
 
 export function supabaseConfig() {
   const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
@@ -12,7 +13,7 @@ export async function supabaseServer(writable = false) {
   if (!config) return null;
 
   const store = await cookies();
-  return createServerClient(config.url, config.key, {
+  return createServerClient<Database>(config.url, config.key, {
     cookieOptions: { httpOnly: true, secure: process.env.NODE_ENV === "production" },
     cookies: {
       getAll: () => store.getAll(),

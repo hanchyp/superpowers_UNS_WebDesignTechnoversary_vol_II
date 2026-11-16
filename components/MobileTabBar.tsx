@@ -18,7 +18,7 @@ export function MobileTabBar({ active }: { active: "pantau" | "laporan" }) {
         </span>
         Laporkan
       </Link>
-      <Link href="/laporan-saya/WR-1029" className={`flex w-24 flex-col items-center gap-1 text-xs ${active === "laporan" ? "font-extrabold text-leaf" : "font-semibold text-ink-2"}`}>
+      <Link href="/laporan-saya"className={`flex w-24 flex-col items-center gap-1 text-xs ${active === "laporan" ? "font-extrabold text-leaf" : "font-semibold text-ink-2"}`}>
         <Icon name="inbox" size={24} />
         Laporan Saya
       </Link>

@@ -142,3 +142,57 @@ body {
     animation: none;
   }
 }
+
+/* Status laporan: animasi "sedang diperiksa" */
+@keyframes pulse-ring-leaf {
+  0% {
+    box-shadow: 0 0 0 0 rgb(30 138 76 / 0.45);
+  }
+  100% {
+    box-shadow: 0 0 0 12px rgb(30 138 76 / 0);
+  }
+}
+.animate-pulse-ring-leaf {
+  animation: pulse-ring-leaf 1.6s ease-out infinite;
+}
+
+@keyframes breathe {
+  0%,
+  100% {
+    transform: scale(0.7);
+  }
+  50% {
+    transform: scale(1.25);
+  }
+}
+.animate-breathe {
+  animation: breathe 1.2s ease-in-out infinite;
+}
+
+@keyframes progress-slide {
+  0% {
+    transform: translateX(-100%);
+  }
+  100% {
+    transform: translateX(250%);
+  }
+}
+.animate-progress-slide {
+  animation: progress-slide 1.4s ease-in-out infinite;
+}
+
+@keyframes dot-blink {
+  0%,
+  20% {
+    opacity: 0.15;
+  }
+  50% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.15;
+  }
+}
+.animate-dot-blink {
+  animation: dot-blink 1.2s ease-in-out infinite;
+}
