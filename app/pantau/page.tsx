@@ -9,7 +9,7 @@ export const metadata: Metadata = {
   description: "Peta laporan indikasi asap dan api dari warga.",
 };
 
-export default function PantauPage() {
+export default function PantauPage({ searchParams }: PageProps<"/pantau">) {
   return (
     <Suspense
       fallback={
@@ -19,12 +19,14 @@ export default function PantauPage() {
         </div>
       }
     >
-      <PantauWithData />
+      <PantauWithData searchParams={searchParams} />
     </Suspense>
   );
 }
 
-async function PantauWithData() {
-  const incidents = await listIncidents();
-  return <PantauView header={<AppBar active="pantau" />} incidents={incidents} />;
+async function PantauWithData({ searchParams }: Pick<PageProps<"/pantau">, "searchParams">) {
+  const [incidents, { q }] = await Promise.all([listIncidents(), searchParams]);
+  const query = typeof q === "string" ? q.slice(0, 80) : "";
+  // key: pencarian baru dari bar atas memulai ulang tampilan dengan kata kunci itu.
+  return <PantauView key={query} header={<AppBar active="pantau" />} incidents={incidents} initialQuery={query} />;
 }

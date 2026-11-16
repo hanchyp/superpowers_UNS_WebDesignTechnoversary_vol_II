@@ -25,13 +25,21 @@ function matchesFilter(i: Incident, f: StatusFilter) {
   return !i.stale && i.condition === f;
 }
 
-export function PantauView({ header, incidents }: { header: ReactNode; incidents: Incident[] }) {
+export function PantauView({ header, incidents, initialQuery = "" }: { header: ReactNode; incidents: Incident[]; initialQuery?: string }) {
   const isDesktop = useIsDesktop();
   // Kejadian terbaru yang masih aktif dipilih lebih dulu.
-  const [selectedId, setSelectedId] = useState<string | undefined>(() => (incidents.find((i) => !i.stale) ?? incidents[0])?.id);
-  const [view, setView] = useState<"peta" | "daftar">("peta");
+  const [selectedId, setSelectedId] = useState<string | undefined>(() => {
+    const iq = initialQuery.trim().toLowerCase();
+    const pool = iq ? incidents.filter((i) => `${i.place} ${i.region} ${i.regionShort}`.toLowerCase().includes(iq)) : incidents;
+    return (pool.find((i) => !i.stale) ?? pool[0])?.id;
+  });
+  const [view, setView] = useState<SheetView>("peta");
   const [filter, setFilter] = useState<StatusFilter>("semua");
-  const shown = incidents.filter((i) => matchesFilter(i, filter));
+  const [query, setQuery] = useState(initialQuery);
+  const q = query.trim().toLowerCase();
+  const shown = incidents.filter(
+    (i) => matchesFilter(i, filter) && (!q || `${i.place} ${i.region} ${i.regionShort}`.toLowerCase().includes(q)),
+  );
   const selected = shown.find((i) => i.id === selectedId);
 
   return (
@@ -43,6 +51,14 @@ export function PantauView({ header, incidents }: { header: ReactNode; incidents
           <div className="space-y-3.5 px-5 pb-4 pt-5">
             <h1 className="text-[26px] font-extrabold tracking-[-0.02em]">Pantau Wilayah</h1>
             <StatusChips value={filter} onChange={setFilter} incidents={incidents} />
+            {q && (
+              <p className="flex items-center gap-2 text-sm font-semibold text-ink-2">
+                {shown.length} hasil untuk &ldquo;{query.trim()}&rdquo;
+                <Link href="/pantau" onClick={() => setQuery("")} className="font-bold text-leaf hover:underline">
+                  Hapus
+                </Link>
+              </p>
+            )}
           </div>
           <p className="flex gap-2 px-5 pb-1 pt-3 text-[13px] font-medium leading-snug text-ink-2">
             <Icon name="info" size={16} className="mt-0.5 shrink-0" />
@@ -65,16 +81,26 @@ export function PantauView({ header, incidents }: { header: ReactNode; incidents
             zoom={INDONESIA_VIEW.zoom}
             incidents={shown}
             selectedId={selected?.id}
-            onSelect={setSelectedId}
+            onSelect={(id) => {
+              setSelectedId(id);
+              // Pin diketuk saat lembar diciutkan: tampilkan kartunya.
+              if (view === "mini") setView("peta");
+            }}
             followSelected
             selectedZoom={isDesktop ? 6.5 : 7}
-            padding={isDesktop ? { right: 380, bottom: 40 } : { top: 150, bottom: 330 }}
+            padding={isDesktop ? { right: 380, bottom: 40 } : { top: 150, bottom: view === "mini" ? 170 : 330 }}
             controls={isDesktop ? "full" : "locate"}
             controlsClassName={isDesktop ? "absolute right-4 top-4" : "absolute right-4 top-[136px]"}
             className="h-full w-full"
           />
           {isDesktop && selected && <Popover incident={selected} onClose={() => setSelectedId(undefined)} />}
-          <MobileOverlay selected={selected} filter={filter} onFilterChange={setFilter} incidents={incidents} />
+          <MobileOverlay
+            query={query}
+            onQueryChange={(v) => {
+              setQuery(v);
+              // Tampilkan hasil pencarian sebagai daftar.
+              if (v.trim()) setView("daftar");
+            }} filter={filter} onFilterChange={setFilter} incidents={incidents} />
 
           <Legend />
 
@@ -238,18 +264,32 @@ function Legend() {
 }
 
 /** Kontrol yang mengambang di atas peta pada mobile. */
-function MobileOverlay({ selected, filter, onFilterChange, incidents }: { selected?: Incident; filter: StatusFilter; onFilterChange: (v: StatusFilter) => void; incidents: Incident[] }) {
+function MobileOverlay({
+  query,
+  onQueryChange,
+  filter,
+  onFilterChange,
+  incidents,
+}: {
+  query: string;
+  onQueryChange: (v: string) => void;
+  filter: StatusFilter;
+  onFilterChange: (v: StatusFilter) => void;
+  incidents: Incident[];
+}) {
   return (
     <div className="pointer-events-none absolute inset-0 lg:hidden">
       <div className="absolute inset-x-4 top-3 space-y-2.5 [&>*]:pointer-events-auto">
         <label className="flex h-[54px] items-center gap-2.5 rounded-full bg-white pl-[18px] pr-[18px] shadow-float">
           <Icon name="search" size={20} className="text-ink-2" />
           <input
-            key={selected?.id}
             type="search"
-            defaultValue={selected?.region ?? ""}
-            placeholder="Cari wilayah"
-            className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none"
+            value={query}
+            onChange={(e) => onQueryChange(e.target.value)}
+            placeholder="Cari wilayah, mis. Riau"
+            aria-label="Cari wilayah"
+            enterKeyHint="search"
+            className="min-w-0 flex-1 bg-transparent text-base font-bold outline-none placeholder:font-semibold placeholder:text-ink-2"
           />
         </label>
         <div className="-mx-4 overflow-x-auto px-4 pb-1 [scrollbar-width:none]">
@@ -260,6 +300,8 @@ function MobileOverlay({ selected, filter, onFilterChange, incidents }: { select
   );
 }
 
+type SheetView = "mini" | "peta" | "daftar";
+
 function MobileSheet({
   items,
   view,
@@ -268,62 +310,73 @@ function MobileSheet({
   onSelect,
 }: {
   items: Incident[];
-  view: "peta" | "daftar";
-  onViewChange: (v: "peta" | "daftar") => void;
+  view: SheetView;
+  onViewChange: (v: SheetView) => void;
   selected?: Incident;
   onSelect: (id: string) => void;
 }) {
-  const expanded = view === "daftar";
   const sheetRef = useRef<HTMLElement>(null);
-  const collapsedH = useRef(260);
-  const drag = useRef<{ startY: number; startH: number; maxH: number } | null>(null);
+  const headRef = useRef<HTMLDivElement>(null);
+  // Tinggi lembar saat menampilkan kartu kejadian; diukur ulang setiap kali mode "peta" tampil.
+  const cardH = useRef(260);
+  const drag = useRef<{ startY: number; startH: number; minH: number; maxH: number } | null>(null);
   const [dragH, setDragH] = useState<number | null>(null);
-  // Dihitung di event handler (bukan saat render) karena memakai ref collapsedH.
-  const [dragOpen, setDragOpen] = useState(false);
+  // Isi yang tampil selama ditarik; dihitung di event handler (bukan saat render) karena memakai ref.
+  const [dragView, setDragView] = useState<SheetView>(view);
   const dragged = useRef(false);
 
-  // Ingat tinggi lembar saat tertutup, jadi batas bawah saat ditarik.
   useLayoutEffect(() => {
-    if (!expanded && dragH === null && sheetRef.current) collapsedH.current = sheetRef.current.offsetHeight;
+    if (view === "peta" && dragH === null && sheetRef.current) cardH.current = sheetRef.current.offsetHeight;
   });
+
+  // Satu langkah ke atas/bawah. Tanpa kejadian terpilih, mode "peta" dilewati.
+  const up = (v: SheetView): SheetView => (v === "mini" ? (selected ? "peta" : "daftar") : "daftar");
+  const down = (v: SheetView): SheetView => (v === "daftar" ? (selected ? "peta" : "mini") : "mini");
 
   const onPointerDown = (e: React.PointerEvent) => {
     const el = sheetRef.current;
     if (!el) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     dragged.current = false;
-    drag.current = { startY: e.clientY, startH: el.offsetHeight, maxH: (el.parentElement?.clientHeight ?? 700) * 0.72 };
+    const minH = (headRef.current?.offsetHeight ?? 60) + 16;
+    drag.current = { startY: e.clientY, startH: el.offsetHeight, minH, maxH: (el.parentElement?.clientHeight ?? 700) * 0.72 };
   };
   const onPointerMove = (e: React.PointerEvent) => {
     const d = drag.current;
     if (!d) return;
     if (Math.abs(e.clientY - d.startY) > 6) dragged.current = true;
-    const h = Math.min(d.maxH, Math.max(collapsedH.current, d.startH - (e.clientY - d.startY)));
+    if (!dragged.current) return;
+    const h = Math.min(d.maxH, Math.max(d.minH, d.startH - (e.clientY - d.startY)));
     setDragH(h);
-    setDragOpen(h > collapsedH.current + 80);
+    setDragView(h > cardH.current + 80 ? "daftar" : h > d.minH + 40 && selected ? "peta" : h > d.minH + 40 ? "daftar" : "mini");
   };
   const onPointerUp = (e: React.PointerEvent) => {
     const d = drag.current;
     if (!d) return;
     drag.current = null;
     const dy = e.clientY - d.startY;
-    if (dy < -40) onViewChange("daftar");
-    else if (dy > 40) onViewChange("peta");
+    if (dy < -40) onViewChange(up(view));
+    else if (dy > 40) onViewChange(down(view));
     setDragH(null);
   };
 
-  const showList = dragH !== null ? dragOpen : expanded;
+  const shownView = dragH !== null ? dragView : view;
+  const toggle = () => {
+    if (dragged.current) return;
+    onViewChange(view === "daftar" ? down(view) : up(view));
+  };
 
   return (
     <section
       ref={sheetRef}
-      className={`absolute inset-x-0 bottom-20 z-30 flex flex-col rounded-t-[28px] bg-white px-4 pb-4 shadow-[0_-6px_28px_rgb(19_38_27/0.18)] lg:hidden ${
+      className={`absolute inset-x-0 bottom-20 z-30 flex flex-col overflow-hidden rounded-t-[28px] bg-white px-4 pb-4 shadow-[0_-6px_28px_rgb(19_38_27/0.18)] lg:hidden ${
         dragH === null ? "transition-[height] duration-300" : ""
-      } ${expanded && dragH === null ? "h-[72%]" : ""}`}
+      } ${view === "daftar" && dragH === null ? "h-[72%]" : ""}`}
       style={dragH !== null ? { height: dragH } : undefined}
       aria-label="Daftar kejadian"
     >
       <div
+        ref={headRef}
         className="-mx-4 cursor-grab touch-none select-none px-4 pb-1 pt-2.5 active:cursor-grabbing"
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
@@ -332,14 +385,19 @@ function MobileSheet({
       >
         <button
           type="button"
-          onClick={() => !dragged.current && onViewChange(expanded ? "peta" : "daftar")}
+          onClick={toggle}
           className="mx-auto mb-3 block h-[5px] w-11 rounded-full bg-[#c9d6c3]"
-          aria-label={expanded ? "Kecilkan daftar" : "Perbesar daftar"}
+          aria-label={view === "daftar" ? "Kecilkan daftar" : "Perbesar daftar"}
+          aria-expanded={view !== "mini"}
         />
-        <h2 className="text-lg font-extrabold">{items.length} kejadian di Indonesia</h2>
+        <button type="button" onClick={toggle} className="flex w-full items-center justify-between gap-3 text-left">
+          <h2 className="text-lg font-extrabold">{items.length} kejadian di Indonesia</h2>
+          <Icon name="chevronDown" size={20} className={`shrink-0 text-ink-2 transition-transform ${view === "daftar" ? "" : "rotate-180"}`} />
+        </button>
       </div>
-      {showList ? (
-        <ul className="mt-3 flex-1 space-y-2.5 overflow-y-auto">
+      {shownView === "daftar" ? (
+        <ul className="mt-3 min-h-0 flex-1 space-y-2.5 overflow-y-auto">
+          {items.length === 0 && <li className="py-6 text-center text-sm font-semibold text-ink-2">Tidak ada kejadian yang cocok.</li>}
           {items.map((i) => (
             <li key={i.id}>
               <IncidentRow
@@ -354,6 +412,7 @@ function MobileSheet({
           ))}
         </ul>
       ) : (
+        shownView === "peta" &&
         selected && (
           <div className="mt-3 rounded-[20px] border-2 border-leaf bg-tint p-3.5">
             <div className="flex gap-3">

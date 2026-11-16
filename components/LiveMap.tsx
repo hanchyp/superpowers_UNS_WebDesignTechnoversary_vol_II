@@ -210,6 +210,20 @@ export function LiveMap({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, ready, followSelected]);
 
+  // Ruang yang tertutup panel berubah (misalnya lembar mobile diciutkan): geser peta agar titik tetap di area terlihat.
+  const paddingKey = JSON.stringify(padding ?? null);
+  const lastPadding = useRef(paddingKey);
+  useEffect(() => {
+    const map = mapRef.current;
+    // Hanya saat padding benar-benar berubah, supaya tidak memotong flyTo awal.
+    if (!ready || !map || !padding || lastPadding.current === paddingKey) return;
+    lastPadding.current = paddingKey;
+    // flyTo ke kejadian terpilih sudah membawa padding baru; jangan dipotong.
+    if (map.isMoving()) return;
+    map.easeTo({ padding: { top: 0, bottom: 0, left: 0, right: 0, ...padding }, duration: 300 });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [paddingKey, ready]);
+
   // Pusat yang diubah dari luar (misalnya tombol reset) menggeser peta; pusat hasil geseran pengguna diabaikan.
   useEffect(() => {
     const map = mapRef.current;

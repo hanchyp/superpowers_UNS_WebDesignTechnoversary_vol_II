@@ -1,3 +1,4 @@
+import Form from "next/form";
 import Image from "next/image";
 import Link from "next/link";
 import { siteLinks } from "@/lib/siteLinks";
@@ -13,14 +14,18 @@ export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi
       <div className="flex h-16 items-center gap-4 px-4 md:h-[72px] md:gap-7 md:px-7">
         <Logo size="sm" />
         {search && (
-          <label className="hidden h-11 w-[380px] items-center gap-2.5 rounded-full border border-line bg-tint px-4 text-ink-2 xl:flex">
-            <Icon name="search" size={19} />
-            <input
-              type="search"
-              placeholder="Cari wilayah, misal Pulang Pisau"
-              className="w-full bg-transparent text-[15px] font-medium text-ink outline-none placeholder:text-[#6b7d70]"
-            />
-          </label>
+          <Form action="/pantau" role="search" className="hidden xl:block">
+            <label className="flex h-11 w-[380px] items-center gap-2.5 rounded-full border border-line bg-tint px-4 text-ink-2 focus-within:border-leaf">
+              <Icon name="search" size={19} />
+              <input
+                type="search"
+                name="q"
+                aria-label="Cari wilayah"
+                placeholder="Cari wilayah, misal Pulang Pisau"
+                className="w-full bg-transparent text-[15px] font-medium text-ink outline-none placeholder:text-[#6b7d70]"
+              />
+            </label>
+          </Form>
         )}
         <div className="flex-1" />
         <nav className="hidden items-center gap-1 md:flex" aria-label="Utama">
