@@ -134,14 +134,14 @@ function Illustration({ topic }: { topic: Topic }) {
 function LeafCard({ topic, index, cardLeft }: { topic: Topic; index: number; cardLeft: boolean }) {
   return (
     <article
-      className={`relative overflow-hidden bg-gradient-to-br from-forest to-leaf p-7 text-white md:p-9 ${
+      className={`relative overflow-hidden bg-gradient-to-br from-forest to-leaf p-6 text-white md:p-9 ${
         cardLeft ? "rounded-[28px] rounded-tl-[96px] rounded-br-[96px]" : "rounded-[28px] rounded-tr-[96px] rounded-bl-[96px]"
       }`}
     >
       <VeinLeaf className={`absolute -bottom-10 h-40 w-28 text-white/15 ${cardLeft ? "-left-6 -rotate-[30deg]" : "-right-6 rotate-[30deg]"}`} />
       <span className="text-sm font-bold text-sprout">0{index + 1}</span>
-      <h3 className="mt-1 text-2xl font-extrabold leading-tight md:text-[28px]">{topic.title}</h3>
-      <p className="relative mt-3 leading-relaxed text-white/85">{topic.body}</p>
+      <h3 className="mt-1 text-[22px] font-extrabold leading-tight md:text-[28px]">{topic.title}</h3>
+      <p className="relative mt-2.5 text-[15px] leading-relaxed text-white/85 md:mt-3 md:text-base">{topic.body}</p>
     </article>
   );
 }
@@ -152,7 +152,7 @@ function Heading() {
       <h2 id="bacaan" className="text-3xl font-extrabold tracking-tight md:text-4xl">
         Dasar-dasar karhutla
       </h2>
-      <p className="mx-auto mt-3 max-w-xl text-ink-2">Tiga hal yang perlu kamu tahu sebelum melapor.</p>
+      <p className="mx-auto mt-2 max-w-xl text-ink-2 md:mt-3">Tiga hal yang perlu kamu tahu sebelum melapor.</p>
     </div>
   );
 }
@@ -161,6 +161,8 @@ export function EdukasiBasics() {
   const section = useRef<HTMLDivElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const [active, setActive] = useState(0);
+  // Layar terlalu pendek untuk panggung menempel (mis. HP kecil): tampilkan sebagai daftar biasa.
+  const [isStatic, setIsStatic] = useState(false);
 
   // Sama seperti bagian "Dengan WANA, kamu bisa": panggung menempel, isi berganti sesuai posisi gulir.
   useEffect(() => {
@@ -169,16 +171,28 @@ export function EdukasiBasics() {
     if (!sectionEl || !stageEl) return;
     const update = () => {
       const bounds = sectionEl.getBoundingClientRect();
+      const stickyTop = parseFloat(getComputedStyle(stageEl).top) || 0;
       const distance = bounds.height - stageEl.offsetHeight;
-      const index = distance > 0 ? Math.floor((-bounds.top / distance) * topics.length) : 0;
+      const index = distance > 0 ? Math.floor(((stickyTop - bounds.top) / distance) * topics.length) : 0;
       setActive(Math.max(0, Math.min(topics.length - 1, index)));
     };
+    // Topik pertama punya teks terpanjang, jadi pengukuran awal mewakili kasus terburuk.
+    const fit = () => {
+      if (getComputedStyle(stageEl).position !== "sticky") return;
+      const stickyTop = parseFloat(getComputedStyle(stageEl).top) || 0;
+      if (stageEl.offsetHeight > window.innerHeight - stickyTop) setIsStatic(true);
+    };
+    const onResize = () => {
+      fit();
+      update();
+    };
+    fit();
     update();
     window.addEventListener("scroll", update, { passive: true });
-    window.addEventListener("resize", update);
+    window.addEventListener("resize", onResize);
     return () => {
       window.removeEventListener("scroll", update);
-      window.removeEventListener("resize", update);
+      window.removeEventListener("resize", onResize);
     };
   }, []);
 
@@ -186,22 +200,26 @@ export function EdukasiBasics() {
   const cardLeft = active % 2 === 1;
 
   return (
-    <div ref={section} className="relative motion-safe:min-h-[300svh]">
+    <div ref={section} className={`relative ${isStatic ? "" : "motion-safe:min-h-[300svh]"}`}>
       <div
         ref={stage}
-        className="mx-auto grid max-w-[1100px] content-center gap-6 px-5 py-10 motion-safe:sticky motion-safe:top-0 motion-safe:min-h-svh md:gap-8 md:px-8"
+        className={`mx-auto grid max-w-[1100px] content-center gap-4 px-5 py-6 md:gap-8 md:px-8 md:py-10 ${
+          isStatic
+            ? ""
+            : "motion-safe:sticky motion-safe:top-16 motion-safe:min-h-[calc(100svh-4rem)] md:motion-safe:top-[72px] md:motion-safe:min-h-[calc(100svh-72px)]"
+        }`}
       >
         <Heading />
 
         {/* Versi animasi */}
-        <div className="motion-reduce:hidden" aria-hidden="true">
-          <div className="grid items-center gap-5 md:grid-cols-2 md:gap-14">
+        <div className={`motion-reduce:hidden ${isStatic ? "hidden" : ""}`} aria-hidden="true">
+          <div className="grid items-center gap-4 md:grid-cols-2 md:gap-14">
             <motion.div
               key={`img-${active}`}
               initial={active === 0 ? false : { opacity: 0, x: cardLeft ? 40 : -40, scale: 0.96 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               transition={{ duration: 0.35, ease: "easeOut" }}
-              className={`mx-auto w-full max-w-[220px] md:max-w-none ${cardLeft ? "md:order-2" : ""}`}
+              className={`mx-auto w-full max-w-[200px] [@media(max-height:760px)]:max-w-[140px] md:max-w-none md:[@media(max-height:760px)]:max-w-[300px] ${cardLeft ? "md:order-2" : ""}`}
             >
               <Illustration topic={topic} />
             </motion.div>
@@ -218,10 +236,10 @@ export function EdukasiBasics() {
         </div>
 
         {/* Versi tanpa animasi (dan untuk pembaca layar) */}
-        <ol className="space-y-10 motion-safe:sr-only">
+        <ol className={`space-y-10 ${isStatic ? "" : "motion-safe:sr-only"}`}>
           {topics.map((t, i) => (
             <li key={t.title} className="grid items-center gap-6 md:grid-cols-2 md:gap-16">
-              <div className={i % 2 === 1 ? "md:order-2" : ""}>
+              <div className={`mx-auto w-full max-w-[200px] md:max-w-none ${i % 2 === 1 ? "md:order-2" : ""}`}>
                 <Illustration topic={t} />
               </div>
               <div className={i % 2 === 1 ? "md:order-1" : ""}>

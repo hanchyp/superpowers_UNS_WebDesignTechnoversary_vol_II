@@ -39,7 +39,7 @@ async function RecentIncidents() {
     return <p className="px-5 pb-8 text-sm font-semibold text-ink-2 md:px-8">Belum ada kejadian yang terbit.</p>;
   }
   return (
-    <div className="mt-7 flex snap-x gap-4 overflow-x-auto px-5 pb-8 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-8">
+    <div className="mt-7 flex snap-x snap-mandatory scroll-px-5 gap-4 overflow-x-auto px-5 pb-8 md:grid md:grid-cols-3 md:gap-6 md:overflow-visible md:px-8">
       {recent.map((i, index) => (
         <Link
           key={i.id}
