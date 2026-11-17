@@ -5,6 +5,7 @@ import { AuthLink } from "@/components/AuthLink";
 import { EmergencyStrip, SiteFooter } from "@/components/Chrome";
 import { HeroVideo } from "@/components/HeroVideo";
 import { Icon } from "@/components/Icon";
+import { RippleLink } from "@/components/RippleLink";
 import { LandingAbilities } from "@/components/LandingAbilities";
 import { LandingIntro } from "@/components/LandingIntro";
 import { LandingNav } from "@/components/LandingNav";
@@ -67,6 +68,35 @@ export default function Home() {
   return (
     <LandingIntro>
       <LandingScrollMotion />
+      <LandingNav
+        desktopAccount={
+          <AccountNav
+            tone="dark"
+            signedOut={
+              <>
+                <AuthLink href="/masuk" className="text-base font-bold text-white transition-colors group-data-[solid=true]/nav:text-leaf">Masuk</AuthLink>
+                <AuthLink href="/daftar" className="rounded-full bg-white px-5 py-2.5 text-base font-bold text-forest transition-colors hover:bg-sprout group-data-[solid=true]/nav:bg-leaf group-data-[solid=true]/nav:text-white group-data-[solid=true]/nav:hover:bg-forest">Daftar</AuthLink>
+              </>
+            }
+          />
+        }
+        mobileName={
+          <div className="ml-auto mr-3 md:hidden">
+            <AccountNav tone="dark" compact />
+          </div>
+        }
+        mobileAccount={
+          <AccountNav
+            showSignedIn={false}
+            signedOut={
+              <div className="mt-2 grid grid-cols-2 gap-2">
+                <AuthLink href="/masuk" className="btn-outline py-3">Masuk</AuthLink>
+                <AuthLink href="/daftar" className="btn-primary py-3">Daftar</AuthLink>
+              </div>
+            }
+          />
+        }
+      />
       <section className="relative isolate flex min-h-[100svh] items-center overflow-hidden md:min-h-[780px]">
         <Image
           src="/photos/rawa-gambut-udara.jpg"
@@ -78,35 +108,6 @@ export default function Home() {
         />
         <HeroVideo />
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-[#0a1c12]/78 via-[#0a1c12]/65 to-[#0a1c12]/85" />
-        <LandingNav
-          desktopAccount={
-            <AccountNav
-              tone="dark"
-              signedOut={
-                <>
-                  <AuthLink href="/masuk" className="text-base font-bold text-white">Masuk</AuthLink>
-                  <AuthLink href="/daftar" className="rounded-full bg-white px-5 py-2.5 text-base font-bold text-forest hover:bg-sprout">Daftar</AuthLink>
-                </>
-              }
-            />
-          }
-          mobileName={
-            <div className="ml-auto mr-3 md:hidden">
-              <AccountNav tone="dark" compact />
-            </div>
-          }
-          mobileAccount={
-            <AccountNav
-              showSignedIn={false}
-              signedOut={
-                <div className="mt-2 grid grid-cols-2 gap-2">
-                  <AuthLink href="/masuk" className="btn-outline py-3">Masuk</AuthLink>
-                  <AuthLink href="/daftar" className="btn-primary py-3">Daftar</AuthLink>
-                </div>
-              }
-            />
-          }
-        />
         <div className="mx-auto flex w-full max-w-[900px] flex-col items-center px-6 pb-16 pt-28 text-center">
           <h1 className="mt-6 text-[40px] font-extrabold leading-[1.12] tracking-[-0.03em] text-white sm:text-6xl md:text-[72px] md:leading-[1.1]">
             Pantau hutan.
@@ -117,14 +118,14 @@ export default function Home() {
             Laporkan indikasi asap atau api, lihat perkembangan wilayah, dan bantu lengkapi informasi dari pengamatanmu.
           </p>
           <div className="mt-8 flex w-full flex-col gap-3 sm:w-auto sm:flex-row">
-            <Link href="/lapor" className="btn bg-sun px-7 py-4 text-lg font-extrabold text-forest hover:bg-[#ffd666]">
+            <RippleLink href="/lapor" className="btn bg-sun px-7 py-4 text-lg font-extrabold text-forest">
               <Icon name="plus" size={22} />
               Laporkan pengamatan
-            </Link>
-            <Link href="/pantau" className="btn-ghost-light px-7 py-4 text-lg font-extrabold">
+            </RippleLink>
+            <RippleLink href="/pantau" fill="bg-forest-deep/60" className="btn border-2 border-white bg-white/10 px-7 py-4 text-lg font-extrabold text-white backdrop-blur-sm">
               <Icon name="map" size={22} />
               Buka peta
-            </Link>
+            </RippleLink>
           </div>
         </div>
       </section>
@@ -151,11 +152,11 @@ export default function Home() {
             <div>
               <h2 data-landing-reveal="text" className="text-[26px] font-extrabold tracking-[-0.03em] md:text-[46px]">Kejadian terbaru</h2>
             </div>
-            <Link href="/pantau" className="btn border-2 border-forest bg-white px-5 py-3 text-[15px] text-forest">
+            <RippleLink href="/pantau" fill="bg-sprout" className="btn border-2 border-forest bg-white px-5 py-3 text-[15px] text-forest">
               <span className="hidden sm:inline">Buka peta lengkap</span>
               <span className="sm:hidden">Peta</span>
               <Icon name="arrowRight" size={18} />
-            </Link>
+            </RippleLink>
           </div>
           <Suspense
             fallback={
@@ -201,9 +202,9 @@ export default function Home() {
               </li>
             ))}
           </ol>
-          <Link href="/pantau" className="btn mt-10 w-full border-2 border-forest bg-leaf px-8 py-4 text-lg font-extrabold text-white sm:w-auto">
+          <RippleLink href="/pantau" fill="bg-forest" className="btn mt-10 w-full border-2 border-forest bg-leaf px-8 py-4 text-lg font-extrabold text-white sm:w-auto">
             Mulai pantau wilayahmu
-          </Link>
+          </RippleLink>
         </div>
       </section>
 

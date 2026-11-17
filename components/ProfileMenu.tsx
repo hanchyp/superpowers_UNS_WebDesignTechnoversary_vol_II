@@ -50,7 +50,9 @@ export function ProfileMenu({ name, email, signOut, tone = "light", compact = fa
         aria-controls={menuId}
         aria-label={`Menu akun ${name}`}
         className={`flex items-center gap-1.5 rounded-full p-1 pr-2.5 transition-colors sm:gap-2 sm:pr-3 ${
-          dark ? "border border-white/40 bg-white/15 text-white hover:bg-white/25" : "border border-line bg-white text-ink hover:bg-tint"
+          dark
+            ? "border border-white/40 bg-white/15 text-white hover:bg-white/25 group-data-[solid=true]/nav:border-line group-data-[solid=true]/nav:bg-white group-data-[solid=true]/nav:text-ink group-data-[solid=true]/nav:hover:bg-tint"
+            : "border border-line bg-white text-ink hover:bg-tint"
         }`}
       >
         <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-sun text-[13px] font-extrabold text-forest md:h-9 md:w-9">
