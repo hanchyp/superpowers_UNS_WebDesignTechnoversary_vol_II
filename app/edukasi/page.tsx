@@ -4,6 +4,8 @@ import Link from "next/link";
 import { AppBar, SiteFooter } from "@/components/Chrome";
 import { EdukasiBasics } from "@/components/EdukasiBasics";
 import { Icon } from "@/components/Icon";
+import { KarhutlaTrio } from "@/components/KarhutlaTrio";
+import { RippleLink } from "@/components/RippleLink";
 import { Suspense } from "react";
 import { IncidentMiniMap } from "@/components/IncidentMiniMap";
 import { listIncidents } from "@/lib/incidentsDb";
@@ -26,17 +28,22 @@ export default function EdukasiPage() {
               Mengenal kebakaran hutan dan lahan
             </h1>
             <p className="mt-5 max-w-xl text-lg leading-relaxed text-white/90">
-              Pelajari bagaimana karhutla menyebar, apa yang terjadi saat gambut terbakar, dan cara membaca titik panas.
+              Mulai dari alasan kita perlu menjaga hutan, lalu kenali bagaimana karhutla terjadi, dampaknya, dan apa yang bisa kamu lakukan.
             </p>
-            <a href="#kejadian-terbaru" className="btn mt-7 bg-sun px-5 py-3 text-forest hover:bg-[#ffd666]">
-              Lihat kejadian terbaru <Icon name="arrowRight" size={18} />
-            </a>
+            <RippleLink href="#kejadian-terbaru" className="btn mt-7 bg-sun py-2.5 pl-5 pr-2.5 text-forest">
+              Lihat kejadian terbaru
+              <span className="grid h-8 w-8 place-items-center rounded-full bg-forest/10">
+                <Icon name="arrowRight" size={17} />
+              </span>
+            </RippleLink>
           </div>
         </header>
 
-        <section aria-labelledby="bacaan" className="bg-gradient-to-b from-paper via-tint to-paper">
+        <section aria-labelledby="bacaan" className="bg-paper">
           <EdukasiBasics />
         </section>
+
+        <KarhutlaTrio />
 
         <section id="kejadian-terbaru" aria-labelledby="judul-kejadian" className="scroll-mt-20 bg-tint py-14 md:py-20">
           <div className="mx-auto max-w-[1200px] px-5 md:px-8">
@@ -45,9 +52,9 @@ export default function EdukasiPage() {
                 <h2 id="judul-kejadian" className="text-3xl font-extrabold tracking-tight md:text-4xl">Kejadian terbaru</h2>
                 <p className="mt-2 text-ink-2">Pembaruan terbaru dari laporan warga di peta WANA.</p>
               </div>
-              <Link href="/pantau" className="btn border border-forest bg-white px-5 py-3 text-forest hover:bg-sprout">
+              <RippleLink href="/pantau" fill="bg-sprout" className="btn border border-forest bg-white px-5 py-3 text-forest">
                 Buka peta lengkap <Icon name="arrowRight" size={18} />
-              </Link>
+              </RippleLink>
             </div>
             <Suspense fallback={<p className="mt-7 text-sm font-semibold text-ink-2">Memuat kejadian…</p>}>
               <RecentList />
