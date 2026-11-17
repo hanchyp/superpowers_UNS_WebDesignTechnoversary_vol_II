@@ -5,6 +5,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { useEffect, useState, type ReactNode } from "react";
 import { Logo } from "@/components/Brand";
+import { INTRO_REPLAY_EVENT, consumeIntroReplay, scrollToTopInstant } from "@/lib/introReplay";
 import { useMediaQuery } from "@/lib/useMediaQuery";
 
 
@@ -15,10 +16,33 @@ export function LandingIntro({ children }: { children: ReactNode }) {
   const reduceMotion = useMediaQuery("(prefers-reduced-motion: reduce)", true);
   const router = useRouter();
 
+  // Klik logo (dari halaman mana pun, termasuk beranda sendiri) → gulir ke paling atas dan putar ulang intro.
+  // Dengan cacheComponents, beranda bisa dipulihkan dari Activity dengan state lama, jadi efek ini
+  // berjalan lagi saat halaman tampil kembali dan memeriksa permintaan putar ulang.
   useEffect(() => {
-    const timer = window.setTimeout(() => setLoading(false), 1100);
-    return () => window.clearTimeout(timer);
+    const replay = () => {
+      consumeIntroReplay();
+      scrollToTopInstant();
+      setLoading(true);
+    };
+    if (consumeIntroReplay()) replay();
+    window.addEventListener(INTRO_REPLAY_EVENT, replay);
+    return () => window.removeEventListener(INTRO_REPLAY_EVENT, replay);
   }, []);
+
+  useEffect(() => {
+    if (!loading) return;
+    scrollToTopInstant();
+    const frame = window.requestAnimationFrame(scrollToTopInstant);
+    const timer = window.setTimeout(() => {
+      scrollToTopInstant();
+      setLoading(false);
+    }, 1100);
+    return () => {
+      window.cancelAnimationFrame(frame);
+      window.clearTimeout(timer);
+    };
+  }, [loading]);
 
   useEffect(() => {
     router.prefetch("/pantau");

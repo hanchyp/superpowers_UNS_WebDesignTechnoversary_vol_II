@@ -1,5 +1,5 @@
-import Link from "next/link";
 import Image from "next/image";
+import { HomeLink } from "./HomeLink";
 
 export function Logo({ tone = "color", size = "md", wordmark = false, decorative = false }: {
   tone?: "color" | "white";
@@ -28,7 +28,7 @@ export function Logo({ tone = "color", size = "md", wordmark = false, decorative
   return decorative ? (
     <span aria-hidden="true" className="inline-flex shrink-0 items-center gap-1.5">{mark}</span>
   ) : (
-    <Link href="/" className="inline-flex shrink-0 items-center gap-1.5 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4" aria-label="WANA, ke beranda">{mark}</Link>
+    <HomeLink className="inline-flex shrink-0 items-center gap-1.5 rounded-sm focus-visible:outline-2 focus-visible:outline-offset-4" ariaLabel="WANA, ke beranda">{mark}</HomeLink>
   );
 }
 
