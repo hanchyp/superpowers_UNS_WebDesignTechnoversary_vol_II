@@ -12,11 +12,29 @@ export const metadata: Metadata = { title: "Masuk" };
 
 export default function MasukPage({ searchParams }: PageProps<"/masuk">) {
   return (
-    <AuthPage title="Masuk" description="Gunakan email dan password akun WANA kamu.">
+    <AuthPage
+      title="Masuk"
+      description="Gunakan email dan password akun WANA kamu."
+      back={
+        <Suspense>
+          <BackLink searchParams={searchParams} />
+        </Suspense>
+      }
+    >
       <Suspense>
         <LoginForm searchParams={searchParams} />
       </Suspense>
     </AuthPage>
+  );
+}
+
+async function BackLink({ searchParams }: Pick<PageProps<"/masuk">, "searchParams">) {
+  const destination = loginReturn((await searchParams).kembali);
+  return (
+    <Link href={destination} className="inline-flex items-center gap-1.5 text-sm font-bold text-ink-2 hover:text-leaf">
+      <span aria-hidden="true">←</span>
+      {destination === "/" ? "Kembali ke beranda" : "Kembali ke halaman sebelumnya"}
+    </Link>
   );
 }
 
@@ -70,12 +88,13 @@ async function LoginForm({ searchParams }: Pick<PageProps<"/masuk">, "searchPara
           Tautan sudah tidak berlaku atau sudah dipakai. Minta tautan baru di halaman Lupa password.
         </p>
       )}
-      <AccountForm action={signIn} demoAction={hasDemo ? signInDemo : undefined} />
-      <Link href="/lupa-password" className="mt-6 text-[15px] font-bold text-leaf">Lupa password?</Link>
-      <Link href={register} className="mt-4 text-[15px] font-bold text-leaf">Belum punya akun? Daftar</Link>
-      <Link href={destination} className="mt-4 text-[15px] font-bold text-leaf">
-        {destination === "/" ? "Kembali ke beranda" : "Kembali ke halaman sebelumnya"}
-      </Link>
+      <AccountForm action={signIn} demoAction={hasDemo ? signInDemo : undefined} forgotHref="/lupa-password" />
+      <p className="mt-8 max-w-[420px] text-center text-[15px] text-ink-2">
+        Belum punya akun?{" "}
+        <Link href={register} className="font-bold text-leaf hover:underline">
+          Daftar
+        </Link>
+      </p>
     </>
   );
 }

@@ -72,7 +72,12 @@ async function Registration({ searchParams }: Pick<PageProps<"/daftar">, "search
         </p>
       )}
       <AccountForm action={signUp} register />
-      <Link href={login} className="mt-8 text-[15px] font-bold text-leaf">Sudah punya akun? Masuk</Link>
+      <p className="mt-8 max-w-[420px] text-center text-[15px] text-ink-2">
+        Sudah punya akun?{" "}
+        <Link href={login} className="font-bold text-leaf hover:underline">
+          Masuk
+        </Link>
+      </p>
     </>
   );
 }

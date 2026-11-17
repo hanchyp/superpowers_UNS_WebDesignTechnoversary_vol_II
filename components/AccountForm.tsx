@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useActionState } from "react";
 
 const inputClass = "mt-1.5 w-full rounded-2xl border-[1.5px] border-control bg-white px-4 py-3.5 text-base outline-none focus:border-leaf";
@@ -8,9 +9,11 @@ const inputClass = "mt-1.5 w-full rounded-2xl border-[1.5px] border-control bg-w
 export type FormState = { message: string; sent?: boolean; name?: string; email?: string };
 type Action = (state: FormState, data: FormData) => Promise<FormState>;
 
-export function AccountForm({ action, register = false, demoAction }: {
+export function AccountForm({ action, register = false, demoAction, forgotHref }: {
   action: Action;
   register?: boolean;
+  /** Tautan "Lupa password?" di samping label Password (khusus halaman masuk). */
+  forgotHref?: string;
   /** Login akun demo di server; password demo tidak pernah dikirim ke browser. */
   demoAction?: Action;
 }) {
@@ -38,7 +41,14 @@ export function AccountForm({ action, register = false, demoAction }: {
           <input name="email" type="email" autoComplete="username" required placeholder="nama@contoh.id" defaultValue={state.email} className={inputClass} />
         </label>
         <label className="block">
-          <span className="text-sm font-bold">Password</span>
+          <span className="flex items-baseline justify-between gap-3">
+            <span className="text-sm font-bold">Password</span>
+            {forgotHref && (
+              <Link href={forgotHref} className="text-sm font-bold text-leaf hover:underline">
+                Lupa password?
+              </Link>
+            )}
+          </span>
           <input name="password" type="password" autoComplete={register ? "new-password" : "current-password"} required minLength={register ? 8 : undefined} className={inputClass} />
           {register && <span className="mt-1 block text-sm text-ink-2">Minimal 8 karakter.</span>}
         </label>
@@ -48,15 +58,23 @@ export function AccountForm({ action, register = false, demoAction }: {
         </button>
       </form>
       {demoAction && (
-        <form action={submitDemo}>
-          <button
-            type="submit"
-            disabled={busy}
-            className="w-full rounded-full border border-leaf px-4 py-3.5 text-base font-bold text-leaf transition-colors hover:bg-tint disabled:opacity-60"
-          >
-            {demoPending ? "Masuk ke akun demo…" : "Masuk dengan akun demo"}
-          </button>
-        </form>
+        <>
+          <div className="flex items-center gap-3 pt-2 text-sm font-semibold text-stale" aria-hidden="true">
+            <span className="h-px flex-1 bg-line" />
+            atau
+            <span className="h-px flex-1 bg-line" />
+          </div>
+          <form action={submitDemo} className="space-y-2">
+            <button
+              type="submit"
+              disabled={busy}
+              className="btn w-full border border-leaf bg-white py-3.5 text-base text-leaf disabled:opacity-60"
+            >
+              {demoPending ? "Masuk ke akun demo…" : "Coba dengan akun demo"}
+            </button>
+            <p className="text-center text-sm text-ink-2">Lihat isi WANA tanpa perlu mendaftar.</p>
+          </form>
+        </>
       )}
     </div>
   );
