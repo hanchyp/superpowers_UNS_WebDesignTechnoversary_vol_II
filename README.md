@@ -4,8 +4,9 @@
 
 # WANA
 
-*Pantau hutan. Bagikan Pengamatan*
-**Peta bersama untuk melaporkan dan mengikuti indikasi kebakaran hutan dan lahan (karhutla) di Indonesia.**
+### Pantau hutan. Bagikan pengamatan.
+
+Peta bersama untuk melaporkan dan mengikuti indikasi kebakaran hutan dan lahan (karhutla) di Indonesia.
 
 [![Live Demo](https://img.shields.io/badge/Live_Demo-wana--project.vercel.app-0e4d2c?style=for-the-badge&logo=vercel&logoColor=white)](https://wana-project.vercel.app/)
 
