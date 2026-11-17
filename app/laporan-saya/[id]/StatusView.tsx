@@ -274,7 +274,7 @@ function Published({ incident, code }: { incident: { id: string; title: string }
           )}
         </ShareButton>
 
-        <Link href={incident ? `/kejadian/${incident.id}` : "/pantau"} className="btn relative mt-5 w-full bg-forest py-4 text-base font-extrabold text-white hover:bg-forest-deep">
+        <Link href={incident ? `/kejadian/${incident.id}` : "/pantau"} className="btn relative mt-5 w-full bg-forest py-4 text-base font-extrabold text-white">
           {incident ? "Lihat kejadian" : "Lihat peta"}
         </Link>
         <Link href="/laporan-saya" className="relative mt-3 py-2 text-[15px] font-bold text-ink hover:text-leaf">

@@ -4,6 +4,7 @@ import { connection } from "next/server";
 import { Suspense } from "react";
 import { AppBar } from "@/components/Chrome";
 import { Icon } from "@/components/Icon";
+import { RippleLink } from "@/components/RippleLink";
 import { MobileTabBar } from "@/components/MobileTabBar";
 import type { ReportStatus } from "@/lib/database.types";
 import { listIncidents, toLite } from "@/lib/incidentsDb";
@@ -62,10 +63,10 @@ async function ReportList() {
       <div className="mt-8 rounded-[24px] border border-line bg-white p-8 text-center shadow-soft">
         <p className="text-lg font-extrabold">Belum ada laporan</p>
         <p className="mt-1 text-sm font-medium text-ink-2">Lihat asap atau api? Kirim pengamatan pertamamu dari tempat aman.</p>
-        <Link href="/lapor" className="btn-report mt-5 inline-flex px-6 py-3 text-[15px]">
+        <RippleLink href="/lapor" className="btn-report mt-5 inline-flex px-6 py-3 text-[15px] hover:bg-sun">
           <Icon name="plus" size={18} />
           Laporkan pengamatan
-        </Link>
+        </RippleLink>
       </div>
     );
   }

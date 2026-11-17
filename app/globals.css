@@ -80,17 +80,16 @@ body {
 }
 /* Aksi melapor: pill kuning */
 @utility btn-report {
-  @apply btn border-2 border-forest bg-sun text-forest
-    hover:bg-[#ffd666] active:translate-y-px;
+  @apply btn border-2 border-forest bg-sun text-forest active:translate-y-px;
 }
 @utility btn-primary {
-  @apply btn bg-leaf text-white hover:bg-forest;
+  @apply btn bg-leaf text-white;
 }
 @utility btn-outline {
-  @apply btn border border-control bg-white text-ink hover:bg-tint;
+  @apply btn border border-control bg-white text-ink;
 }
 @utility btn-ghost-light {
-  @apply btn border-2 border-white bg-white/10 text-white backdrop-blur-sm hover:bg-white/20;
+  @apply btn border-2 border-white bg-white/10 text-white backdrop-blur-sm;
 }
 @utility chip {
   @apply inline-flex items-center gap-1.5 rounded-full border border-control bg-white px-3.5 py-2
@@ -195,4 +194,33 @@ body {
 }
 .animate-dot-blink {
   animation: dot-blink 1.2s ease-in-out infinite;
+}
+
+/*
+ * Efek "genangan" untuk semua tombol: lingkaran yang menggelapkan warna tombol itu sendiri
+ * menyebar dari titik kursor masuk (--rx/--ry diisi oleh ButtonRipple) dan menyusut ke titik keluar.
+ * Tombol RippleLink (data-ripple) punya warna genangan sendiri, jadi dilewati.
+ */
+:where(.btn, .btn-primary, .btn-outline, .btn-report, .btn-ghost-light):not([data-ripple]) {
+  position: relative;
+  isolation: isolate;
+  overflow: hidden;
+}
+:where(.btn, .btn-primary, .btn-outline, .btn-report, .btn-ghost-light):not([data-ripple])::before {
+  content: "";
+  position: absolute;
+  left: var(--rx, 50%);
+  top: var(--ry, 50%);
+  z-index: -1;
+  width: 260%;
+  aspect-ratio: 1;
+  border-radius: 9999px;
+  translate: -50% -50%;
+  scale: 0;
+  pointer-events: none;
+  backdrop-filter: brightness(0.86) saturate(1.08);
+  transition: scale 1.1s cubic-bezier(0.22, 1, 0.36, 1);
+}
+:where(.btn, .btn-primary, .btn-outline, .btn-report, .btn-ghost-light):not([data-ripple], :disabled, [aria-disabled="true"]):is(:hover, :focus-visible)::before {
+  scale: 1;
 }

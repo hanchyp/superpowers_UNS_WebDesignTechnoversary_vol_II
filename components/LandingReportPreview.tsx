@@ -1,10 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import Link from "next/link";
 import { useRef, useState } from "react";
 import type { Incident } from "@/lib/incidents";
 import { Icon } from "./Icon";
+import { RippleLink } from "./RippleLink";
 import { LiveMap } from "./LiveMap";
 
 const title = "Indikasi asap dari arah kanal";
@@ -63,10 +63,10 @@ export function LandingReportPreview({ incident, className }: { incident: Incide
         </LiveMap>
       </div>
 
-      <Link href="/pantau" className="btn justify-self-start bg-sun px-5 py-3 font-extrabold text-forest hover:bg-[#ffd666] md:col-start-2 md:row-start-4 md:justify-self-end">
+      <RippleLink href="/pantau" className="btn justify-self-start bg-sun px-5 py-3 font-extrabold text-forest md:col-start-2 md:row-start-4 md:justify-self-end">
         Buka peta WANA
         <Icon name="arrowRight" size={18} />
-      </Link>
+      </RippleLink>
 
       <dialog ref={photoDialog} aria-label="Foto simulasi pengamatan" className="fixed inset-0 m-auto max-h-[90dvh] w-[min(92vw,960px)] max-w-none overflow-auto rounded-2xl bg-ink p-3 text-white backdrop:bg-black/80">
         <form method="dialog" className="mb-2 flex justify-end">

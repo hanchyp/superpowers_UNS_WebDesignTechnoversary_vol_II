@@ -1,6 +1,7 @@
 "use client";
 
 import type { FormEvent } from "react";
+import { RippleLink } from "@/components/RippleLink";
 
 const contactEmail = "wana@project.com";
 
@@ -42,9 +43,9 @@ export function ContactForm() {
         placeholder="Tulis pertanyaan atau masukanmu untuk WANA"
         className="mt-2 block w-full rounded-2xl border border-control bg-white px-4 py-3 text-ink focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-leaf"
       />
-      <button type="submit" className="btn-primary mt-4 px-5 py-3">
+      <RippleLink type="submit" fill="bg-forest" className="btn mt-4 bg-leaf px-5 py-3 text-white">
         Buka draf email
-      </button>
+      </RippleLink>
       <p className="mt-2 text-sm text-ink-2">Kirim pesan dari aplikasi email setelah draf terbuka.</p>
     </form>
   );

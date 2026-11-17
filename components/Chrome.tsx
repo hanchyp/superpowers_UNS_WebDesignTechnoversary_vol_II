@@ -6,6 +6,7 @@ import { AccountNav } from "./AccountNav";
 import { AuthLink } from "./AuthLink";
 import { Logo } from "./Brand";
 import { Icon } from "./Icon";
+import { RippleLink } from "./RippleLink";
 import { MobileMenu } from "./MobileMenu";
 
 /** Bar atas halaman alat (Pantau, Detail, Lapor, Status). */
@@ -46,11 +47,11 @@ export function AppBar({ active, search = true }: { active?: "pantau" | "edukasi
         <AccountNav
           signedOut={<AuthLink href="/masuk" className="whitespace-nowrap text-sm font-bold text-leaf md:text-[15px]">Masuk</AuthLink>}
         />
-        <Link href="/lapor" className="btn-report shrink-0 whitespace-nowrap px-4 py-2.5 text-[15px]">
+        <RippleLink href="/lapor" className="btn-report shrink-0 whitespace-nowrap px-4 py-2.5 text-[15px] hover:bg-sun">
           <Icon name="plus" size={18} />
           <span className="hidden sm:inline">Laporkan pengamatan</span>
           <span className="sm:hidden">Lapor</span>
-        </Link>
+        </RippleLink>
         <MobileMenu activeHref={active ? `/${active}` : undefined} />
       </div>
     </header>
@@ -72,10 +73,10 @@ export function EmergencyStrip() {
             </p>
           </div>
         </div>
-        <a href="tel:112" className="btn border-2 border-forest bg-fire px-6 py-3.5 text-[17px] font-extrabold text-white">
+        <RippleLink href="tel:112" fill="bg-fire-ink" className="btn border-2 border-forest bg-fire px-6 py-3.5 text-[17px] font-extrabold text-white">
           <Icon name="phone" size={20} />
           Hubungi 112
-        </a>
+        </RippleLink>
       </div>
     </section>
   );
@@ -92,10 +93,10 @@ export function SiteFooter() {
             <p className="text-3xl font-extrabold leading-tight tracking-[-0.03em] md:text-5xl md:leading-[1.15]">
               Hutan terjaga, mulai dari satu pengamatan kecil.
             </p>
-            <Link href="/lapor" className="btn-report mt-7 border-white px-6 py-3.5 text-[17px]">
+            <RippleLink href="/lapor" className="btn-report mt-7 border-white px-6 py-3.5 text-[17px] hover:bg-sun">
               <Icon name="plus" size={20} />
               Laporkan pengamatan
-            </Link>
+            </RippleLink>
           </div>
           <nav aria-label="Menu footer" className="grid grid-cols-2 gap-6 border-t border-white/20 pt-6 md:shrink-0 md:gap-8 md:border-0 md:pt-2 lg:gap-12">
             {["Jelajahi", "WANA"].map((group) => (

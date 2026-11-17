@@ -1,5 +1,5 @@
-import Link from "next/link";
 import { Logo } from "@/components/Brand";
+import { RippleLink } from "@/components/RippleLink";
 
 export default function NotFound() {
   return (
@@ -9,9 +9,9 @@ export default function NotFound() {
       <p className="max-w-[420px] text-base font-medium text-ink-2">
         Kejadian mungkin sudah digabung, disembunyikan, atau tautannya salah. Coba cari wilayahnya di peta.
       </p>
-      <Link href="/pantau" className="btn-primary px-6 py-3.5 text-base">
+      <RippleLink href="/pantau" fill="bg-forest" className="btn bg-leaf px-6 py-3.5 text-base text-white">
         Buka peta
-      </Link>
+      </RippleLink>
     </main>
   );
 }
