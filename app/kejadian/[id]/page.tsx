@@ -14,7 +14,8 @@ import { getIncidentById, getIncidentPhotos } from "@/lib/incidentsDb";
 export async function generateMetadata({ params }: PageProps<"/kejadian/[id]">): Promise<Metadata> {
   const { id } = await params;
   const incident = await getIncidentById(id);
-  return { title: incident?.title ?? "Kejadian tidak ditemukan" };
+  if (!incident) return { title: "Kejadian tidak ditemukan" };
+  return { title: incident.title, description: incident.summary.slice(0, 200) };
 }
 
 const dot: Record<TimelineEntry["kind"], string> = {

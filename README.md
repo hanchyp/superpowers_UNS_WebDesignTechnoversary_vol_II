@@ -73,7 +73,7 @@ Form pendek yang aman dan menjaga privasi pelapor:
 - **Lokasi**: taruh titik perkiraan sumber, atau cukup posisi pengamat + arah asap kalau tidak tahu titik pastinya.
 - **Tinjau**: kalau ada kejadian serupa di dekat titik itu, WANA menawarkan untuk **menggabungkan** laporan, sehingga tidak muncul duplikat.
 
-Foto dikecilkan otomatis (maks. 1920 px), dan **data lokasi di dalam foto (EXIF/GPS) dibuang** sebelum diunggah.
+Foto dikecilkan otomatis (maks. 1920 px), dan **data lokasi di dalam foto (EXIF/GPS) dibuang** sebelum diunggah. Video tidak diproses ulang di browser sehingga metadatanya masih utuh, karena itu **video tidak pernah ditampilkan ke publik**. Video hanya bisa dibuka oleh pelapornya sendiri.
 
 <img src="docs/images/lapor.png" alt="Form lapor dalam 3 langkah di ponsel" width="100%">
 

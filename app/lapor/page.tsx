@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { isDemoEmail } from "@/lib/demo";
 import { listIncidents, toLite } from "@/lib/incidentsDb";
+import { supabaseServer } from "@/lib/supabase";
 import { LaporForm } from "./LaporForm";
 
 export const metadata: Metadata = { title: "Laporkan pengamatan" };
@@ -18,5 +20,14 @@ async function LaporWithContext({ searchParams }: Pick<PageProps<"/lapor">, "sea
   // Kejadian dipakai untuk menawarkan penggabungan ke kejadian terdekat.
   const incidents = (await listIncidents()).map(toLite);
   const related = typeof kejadian === "string" ? incidents.find((i) => i.id === kejadian) : undefined;
-  return <LaporForm incidents={incidents} relatedId={related?.id} relatedTitle={related?.title} />;
+  const supabase = await supabaseServer();
+  const { data } = (await supabase?.auth.getClaims()) ?? { data: null };
+  return (
+    <LaporForm
+      incidents={incidents}
+      relatedId={related?.id}
+      relatedTitle={related?.title}
+      isDemo={isDemoEmail(data?.claims.email)}
+    />
+  );
 }

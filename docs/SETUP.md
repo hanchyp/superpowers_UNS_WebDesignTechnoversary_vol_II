@@ -51,19 +51,29 @@ Jalankan berurutan di **Supabase → SQL Editor**:
    - Saat laporan terbit, laporan yang digabung menambah dukungan dan linimasa kejadian. Laporan baru menjadi kejadian baru (ID `wr-<nomor>`).
    - Foto dari laporan terbit tampil publik; video tidak.
 
-> **Sebelum demo**, segarkan waktu data simulasi di SQL Editor:
+> Waktu data simulasi disegarkan otomatis tiap jam oleh pg_cron ([migrasi 0004](../supabase/migrations/202611170004_fix_demo_copy_and_auto_refresh.sql)). Untuk menyegarkan sekarang juga:
 >
 > ```sql
 > select public.refresh_demo_incidents();
 > ```
->
-> Kalau tidak, setelah 2 hari semua kejadian tampil sebagai "info lama".
 
 ## 4. Akun demo
 
-1. Di **Supabase → Authentication → Users → Add user → Create new user**, buat akun `wana@gmail.com` dengan password khusus demo dan centang **Auto Confirm User**.
+1. Di **Supabase → Authentication → Users → Add user → Create new user**, buat akun `wana@project.com` dengan password khusus demo dan centang **Auto Confirm User**.
 2. Isi `WANA_DEMO_PASSWORD` di `.env.local` dengan password yang sama. Untuk deployment demo, tambahkan variabel itu di pengaturan environment hosting.
-3. Jalankan ulang aplikasi dan klik **Masuk dengan akun demo** di `/masuk`. Login demo berjalan di server, jadi password demo tidak pernah dikirim ke browser.
+3. Jalankan [migrasi akun demo](../supabase/migrations/202611170007_demo_account_sandbox.sql) **setelah** akun dibuat. Migrasi ini menyimpan kondisi akun demo, lalu tiap 10 menit (pg_cron):
+   - memulihkan email dan password akun demo bila ada yang menggantinya;
+   - menghapus laporan akun demo yang lebih tua dari 1 jam, beserta kejadian, linimasa, dan dukungan yang ditambahkannya, supaya kiriman iseng tidak menetap di peta publik.
+
+   Batas kirim akun demo 60 laporan per jam (akun biasa 10). Aplikasi juga menolak reset dan ganti password untuk akun demo.
+4. Jalankan ulang aplikasi dan klik **Masuk dengan akun demo** di `/masuk`. Login demo berjalan di server, jadi password demo tidak pernah dikirim ke browser.
+
+Kalau password demo sengaja diganti, perbarui juga salinannya supaya tidak dipulihkan ke password lama:
+
+```sql
+update wana_private.demo_account d set encrypted_password = u.encrypted_password
+from auth.users u where u.id = d.user_id;
+```
 
 ## Variabel lingkungan
 

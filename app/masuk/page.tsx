@@ -4,12 +4,11 @@ import { redirect } from "next/navigation";
 import { Suspense } from "react";
 import { AccountForm, type FormState } from "@/components/AccountForm";
 import { AuthPage } from "@/components/AuthPage";
+import { DEMO_EMAIL } from "@/lib/demo";
 import { loginReturn } from "@/lib/loginReturn";
 import { supabaseServer } from "@/lib/supabase";
 
 export const metadata: Metadata = { title: "Masuk" };
-
-const demoEmail = "wana@gmail.com";
 
 export default function MasukPage({ searchParams }: PageProps<"/masuk">) {
   return (
@@ -54,7 +53,7 @@ async function LoginForm({ searchParams }: Pick<PageProps<"/masuk">, "searchPara
     const supabase = await supabaseServer(true);
     if (!password || !supabase) return { message: "Akun demo belum disiapkan." };
 
-    const { error } = await supabase.auth.signInWithPassword({ email: demoEmail, password });
+    const { error } = await supabase.auth.signInWithPassword({ email: DEMO_EMAIL, password });
     if (error) {
       console.error("[masuk] login demo gagal:", error.code ?? error.status, error.message);
       return { message: "Akun demo sedang tidak bisa dipakai. Coba lagi nanti." };

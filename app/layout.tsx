@@ -15,6 +15,15 @@ const jetbrains = JetBrains_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL ?? "https://wana-project.vercel.app"),
+  openGraph: {
+    type: "website",
+    locale: "id_ID",
+    siteName: "WANA",
+    title: "WANA · Pantau hutan. Bagikan pengamatan.",
+    description: "Peta bersama untuk melaporkan dan mengikuti indikasi kebakaran hutan dan lahan di Indonesia.",
+  },
+  twitter: { card: "summary_large_image" },
   title: {
     default: "WANA · Pantau hutan. Bagikan pengamatan.",
     template: "%s · WANA",

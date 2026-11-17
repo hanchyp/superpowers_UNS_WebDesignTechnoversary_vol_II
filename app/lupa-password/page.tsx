@@ -4,6 +4,7 @@ import { headers } from "next/headers";
 import type { FormState } from "@/components/AccountForm";
 import { AuthPage } from "@/components/AuthPage";
 import { ResetRequestForm } from "@/components/PasswordForms";
+import { isDemoEmail } from "@/lib/demo";
 import { supabaseServer } from "@/lib/supabase";
 
 export const metadata: Metadata = { title: "Lupa password" };
@@ -13,6 +14,10 @@ async function requestReset(_: FormState, form: FormData): Promise<FormState> {
 
   const email = String(form.get("email") ?? "").trim();
   if (!email) return { message: "Isi email akun kamu.", email };
+
+  if (isDemoEmail(email)) {
+    return { message: "Akun demo tidak punya fitur reset password. Pakai tombol Masuk dengan akun demo di halaman masuk.", email };
+  }
 
   const supabase = await supabaseServer(true);
   if (!supabase) return { message: "Layanan akun belum dikonfigurasi.", email };

@@ -5,9 +5,12 @@ import { Suspense } from "react";
 import type { FormState } from "@/components/AccountForm";
 import { AuthPage } from "@/components/AuthPage";
 import { NewPasswordForm } from "@/components/PasswordForms";
+import { isDemoEmail } from "@/lib/demo";
 import { supabaseServer } from "@/lib/supabase";
 
 export const metadata: Metadata = { title: "Atur password baru" };
+
+const DEMO_LOCKED = "Password akun demo tidak bisa diganti karena dipakai bersama. Daftar akun sendiri untuk mengatur password.";
 
 async function updatePassword(_: FormState, form: FormData): Promise<FormState> {
   "use server";
@@ -19,6 +22,10 @@ async function updatePassword(_: FormState, form: FormData): Promise<FormState> 
 
   const supabase = await supabaseServer(true);
   if (!supabase) return { message: "Layanan akun belum dikonfigurasi." };
+
+  // Akun demo dipakai bersama, jadi password-nya tidak boleh diganti dari aplikasi.
+  const { data } = await supabase.auth.getClaims();
+  if (isDemoEmail(data?.claims.email)) return { message: DEMO_LOCKED };
 
   const { error } = await supabase.auth.updateUser({ password });
   if (error) {
@@ -49,5 +56,8 @@ async function RequireSession() {
   const supabase = await supabaseServer();
   const { data } = (await supabase?.auth.getClaims()) ?? { data: null };
   if (!data?.claims.sub) redirect("/lupa-password");
+  if (isDemoEmail(data.claims.email)) {
+    return <p role="status" className="mt-8 max-w-[420px] rounded-2xl bg-tint p-4 text-forest">{DEMO_LOCKED}</p>;
+  }
   return <NewPasswordForm action={updatePassword} />;
 }

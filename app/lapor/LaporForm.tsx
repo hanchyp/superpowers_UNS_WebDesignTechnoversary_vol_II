@@ -42,7 +42,12 @@ const fallbackOrigin: Incident = {
 /** Foto asli boleh lebih besar karena akan dikompresi sebelum diunggah. */
 const MAX_RAW_IMAGE_MB = 40;
 
-export function LaporForm({ incidents, relatedId, relatedTitle }: { incidents: Incident[]; relatedId?: string; relatedTitle?: string }) {
+export function LaporForm({ incidents, relatedId, relatedTitle, isDemo = false }: {
+  incidents: Incident[];
+  relatedId?: string;
+  relatedTitle?: string;
+  isDemo?: boolean;
+}) {
   const router = useRouter();
   const now = useClock();
   const [step, setStep] = useState(0);
@@ -177,6 +182,11 @@ export function LaporForm({ incidents, relatedId, relatedTitle }: { incidents: I
           <div className={`flex min-h-0 flex-1 flex-col ${step === 1 ? "" : "md:mx-auto md:w-full md:max-w-[1040px] md:px-4 lg:px-8"}`}>
             <Stepper step={step} />
             <div className="min-h-0 flex-1 space-y-5 overflow-y-auto px-5 pb-6 pt-1 md:px-8">
+              {isDemo && step === 0 && (
+                <p className="rounded-2xl bg-tint p-3.5 text-sm font-semibold text-forest">
+                  Kamu memakai akun demo. Laporan tetap melewati alur lengkap sampai tampil di peta, lalu dihapus otomatis setelah ±1 jam.
+                </p>
+              )}
               {relatedTitle && (
                 <p className="rounded-2xl bg-tint p-3.5 text-sm font-semibold text-forest">
                   Kamu menambahkan pengamatan untuk: <strong>{relatedTitle}</strong>
