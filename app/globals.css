@@ -218,7 +218,8 @@ body {
   translate: -50% -50%;
   scale: 0;
   pointer-events: none;
-  backdrop-filter: brightness(0.86) saturate(1.08);
+  background: rgb(219 219 219);
+  mix-blend-mode: multiply;
   transition: scale 1.1s cubic-bezier(0.22, 1, 0.36, 1);
 }
 :where(.btn, .btn-primary, .btn-outline, .btn-report, .btn-ghost-light):not([data-ripple], :disabled, [aria-disabled="true"]):is(:hover, :focus-visible)::before {
