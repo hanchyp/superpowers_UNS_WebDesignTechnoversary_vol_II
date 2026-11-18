@@ -30,7 +30,7 @@ Peta bersama untuk melaporkan dan mengikuti indikasi kebakaran hutan dan lahan (
 
 ---
 
-## 🔥 Masalah
+## Masalah
 
 Setiap musim kemarau, kebakaran hutan dan lahan gambut kembali muncul di Sumatra, Kalimantan, dan wilayah lain di Indonesia. Warga sekitar sering menjadi yang pertama melihat asap atau api, tetapi informasinya:
 
@@ -38,38 +38,38 @@ Setiap musim kemarau, kebakaran hutan dan lahan gambut kembali muncul di Sumatra
 - **sulit dipercaya**, karena foto lama atau foto dari tempat lain mudah tersebar ulang;
 - **cepat basi**, karena tidak ada yang tahu apakah api masih menyala atau sudah padam.
 
-## 🌱 Solusi
+## Solusi
 
 **WANA** mengumpulkan pengamatan warga ke **satu peta bersama**. Setiap laporan diperiksa sebelum tampil, laporan untuk lokasi yang sama digabung menjadi satu kejadian, dan setiap kejadian menunjukkan **seberapa kuat buktinya** serta **seberapa baru informasinya**.
 
 <div align="center">
 
-| 👀 **Amati** | 🤖 **Diperiksa** | 🗺️ **Dilengkapi** |
-|:---:|:---:|:---:|
+|                                   **Amati**                                    |                                         **Diperiksa**                                          |                                     **Dilengkapi**                                     |
+| :----------------------------------------------------------------------------: | :--------------------------------------------------------------------------------------------: | :------------------------------------------------------------------------------------: |
 | Lihat asap atau api? Potret dari tempat aman, lalu tandai lokasi atau arahnya. | AI memeriksa foto, waktu, dan lokasi. Lolos berarti layak tampil, belum berarti terverifikasi. | Laporan tampil di peta, dan warga lain bisa menambah pengamatan di kejadian yang sama. |
 
 </div>
 
-## 🎬 Demo
+## Demo
 
 <div align="center">
 <img src="docs/images/demo.gif" alt="Alur melapor: peta, isi form 3 langkah, kirim, diperiksa, lalu lolos dan tampil di peta" width="100%">
 <sub>Dari peta, isi form 3 langkah, kirim, lalu laporan diperiksa dan lolos dalam ±12 detik.</sub>
 </div>
 
-## ✨ Fitur utama
+## Fitur utama
 
-### 🗺️ Peta Pantau Wilayah
+### Peta Pantau Wilayah
 
-Peta nasional dengan penanda yang dikelompokkan (cluster), filter kondisi (*masih berlangsung*, *mereda*, *belum diketahui*, *info lama*), daftar kejadian, dan popover ringkas. Kejadian yang tidak diperbarui lebih dari 48 jam otomatis ditandai **info lama**, supaya peta tidak menyesatkan.
+Peta nasional dengan penanda yang dikelompokkan (cluster), filter kondisi (_masih berlangsung_, _mereda_, _belum diketahui_, _info lama_), daftar kejadian, dan popover ringkas. Kejadian yang tidak diperbarui lebih dari 48 jam otomatis ditandai **info lama**, supaya peta tidak menyesatkan.
 
 <img src="docs/images/pantau.png" alt="Halaman Pantau Wilayah: peta nasional dan daftar kejadian" width="100%">
 
-### 📸 Lapor dalam 3 langkah
+### Lapor dalam 3 langkah
 
 Form pendek yang aman dan menjaga privasi pelapor:
 
-- **Pengamatan**: pilih *asap*, *api*, atau *keduanya*, waktu kejadian, dan hingga 4 foto/video.
+- **Pengamatan**: pilih _asap_, _api_, atau _keduanya_, waktu kejadian, dan hingga 4 foto/video.
 - **Lokasi**: taruh titik perkiraan sumber, atau cukup posisi pengamat + arah asap kalau tidak tahu titik pastinya.
 - **Tinjau**: kalau ada kejadian serupa di dekat titik itu, WANA menawarkan untuk **menggabungkan** laporan, sehingga tidak muncul duplikat.
 
@@ -77,13 +77,13 @@ Foto dikecilkan otomatis (maks. 1920 px), dan **data lokasi di dalam foto (EXIF/
 
 <img src="docs/images/lapor.png" alt="Form lapor dalam 3 langkah di ponsel" width="100%">
 
-### ⏱️ Status laporan secara langsung
+### Status laporan secara langsung
 
 Setelah dikirim, pelapor bisa mengikuti setiap tahap pemeriksaan: kelengkapan data, kewajaran waktu dan lokasi, indikasi visual pada foto, dan pencarian kejadian serupa. Halaman diperbarui otomatis sampai laporan **lolos dan tampil di peta**, atau diminta untuk **dilengkapi**.
 
 <img src="docs/images/status.png" alt="Status laporan: sedang diperiksa lalu lolos dan tampil di peta" width="100%">
 
-### 📋 Detail kejadian yang transparan
+### Detail kejadian yang transparan
 
 Setiap kejadian punya galeri foto, ringkasan pengamatan, **hasil pemeriksaan awal AI beserta keterbatasannya**, area perkiraan sumber, dan **linimasa** dari laporan pertama sampai pengamatan terbaru. Identitas pelapor dan lokasi pengamat tidak pernah ditampilkan ke publik.
 
@@ -93,42 +93,42 @@ Setiap kejadian punya galeri foto, ringkasan pengamatan, **hasil pemeriksaan awa
 <img src="docs/images/detail.png" alt="Halaman detail kejadian Pulang Pisau" width="100%">
 </details>
 
-### 🧭 Lapisan bukti yang jujur
+### Proses pelaporan
 
-WANA membedakan dengan tegas antara *layak tampil* dan *terverifikasi*:
+WANA membedakan dengan tegas antara _layak tampil_ dan _terverifikasi_:
 
-| Tingkat | Artinya |
-|---|---|
-| 🔵 **Lolos AI** | Foto, waktu, dan lokasi masuk akal. Ini syarat tampil di peta, **bukan** verifikasi. |
-| 🟢 **Didukung warga** | Ada pengamatan mandiri dari akun lain untuk kejadian yang sama. |
-| ⚪ **Terverifikasi petugas** | Dikonfirmasi pihak berwenang (rencana pengembangan). |
+| Tingkat                      | Artinya                                                                              |
+| ---------------------------- | ------------------------------------------------------------------------------------ |
+| 🔵 **Lolos AI**              | Foto, waktu, dan lokasi masuk akal. Ini syarat tampil di peta, **bukan** verifikasi. |
+| 🟢 **Didukung warga**        | Ada pengamatan mandiri dari akun lain untuk kejadian yang sama.                      |
+| ⚪ **Terverifikasi petugas** | Dikonfirmasi pihak berwenang (rencana pengembangan).                                 |
 
-### 📱 Mobile-first
+### Mobile-first
 
-Dirancang untuk dipakai di lapangan lewat ponsel: bottom sheet di peta, tab bar bawah, tombol besar, dan pengingat keselamatan (*"Ambil foto dari tempat aman"*, *"Hubungi 112"*) di titik-titik yang tepat.
+Dirancang untuk dipakai di lapangan lewat ponsel: bottom sheet di peta, tab bar bawah, tombol besar, dan pengingat keselamatan (_"Ambil foto dari tempat aman"_, _"Hubungi 112"_) di titik-titik yang tepat.
 
 <img src="docs/images/mobile.png" alt="Tampilan WANA di ponsel: beranda, peta, dan detail kejadian" width="100%">
 
-## 🔄 Alur laporan
+## Alur laporan
 
 ```mermaid
 flowchart LR
-    A([👀 Warga melihat<br/>asap atau api]) --> B[📸 Isi form<br/>3 langkah]
-    B --> C{🤖 Pemeriksaan<br/>awal AI}
+    A([Warga melihat<br/>asap atau api]) --> B[Isi form<br/>3 langkah]
+    B --> C{Pemeriksaan<br/>awal AI}
     C -- Perlu dilengkapi --> B
-    C -- Ditolak --> X([❌ Tidak tampil])
+    C -- Ditolak --> X([Tidak tampil])
     C -- Lolos --> D{Ada kejadian<br/>serupa di dekatnya?}
-    D -- Ya --> E[➕ Digabung:<br/>dukungan + linimasa bertambah]
-    D -- Tidak --> F[📍 Kejadian baru<br/>di peta]
-    E --> G([🗺️ Tampil di Peta Pantau])
+    D -- Ya --> E[Digabung:<br/>dukungan + linimasa bertambah]
+    D -- Tidak --> F[Kejadian baru<br/>di peta]
+    E --> G([Tampil di Peta Pantau])
     F --> G
 ```
 
-## 🏗️ Arsitektur
+## Arsitektur
 
 ```mermaid
 flowchart LR
-    U[📱 Browser<br/>desktop & ponsel] -->|HTTPS| N
+    U[Browser<br/>desktop & ponsel] -->|HTTPS| N
 
     subgraph V[Vercel]
       N[Next.js 16 App Router<br/>Server Components + Server Actions]
@@ -146,17 +146,17 @@ flowchart LR
     U -->|tile peta| OFM[OpenFreeMap<br/>+ MapLibre GL]
 ```
 
-## 🧰 Teknologi
+## Teknologi
 
-| Lapisan | Teknologi |
-|---|---|
-| Framework | **Next.js 16** (App Router, Server Actions), **React 19**, TypeScript |
-| Tampilan | **Tailwind CSS 4**, Motion (animasi), Plus Jakarta Sans |
-| Peta | **MapLibre GL** + **Supercluster**, tile dari OpenFreeMap / OpenStreetMap |
-| Backend | **Supabase**: Auth, Postgres dengan Row Level Security, Storage |
-| Hosting | **Vercel** |
+| Lapisan   | Teknologi                                                                 |
+| --------- | ------------------------------------------------------------------------- |
+| Framework | **Next.js 16** (App Router, Server Actions), **React 19**, TypeScript     |
+| Tampilan  | **Tailwind CSS 4**, Motion (animasi), Plus Jakarta Sans                   |
+| Peta      | **MapLibre GL** + **Supercluster**, tile dari OpenFreeMap / OpenStreetMap |
+| Backend   | **Supabase**: Auth, Postgres dengan Row Level Security, Storage           |
+| Hosting   | **Vercel**                                                                |
 
-## 🚀 Menjalankan secara lokal
+## Menjalankan secara lokal
 
 ```bash
 git clone https://github.com/hanchyp/wana.git
@@ -168,7 +168,7 @@ npm run dev
 
 Buka http://localhost:3000. Setup Supabase lengkap (auth, template email, migrasi, akun demo) ada di **[docs/SETUP.md](docs/SETUP.md)**.
 
-## 📁 Struktur proyek
+## Struktur proyek
 
 ```
 app/                 # Rute Next.js: beranda, pantau, kejadian, lapor, laporan-saya, auth
@@ -179,7 +179,7 @@ public/              # Logo, maskot, foto, video hero, peta SVG
 docs/                # Panduan setup & gambar README
 ```
 
-## 🛣️ Rencana pengembangan
+## Rencana pengembangan
 
 - [ ] Pemeriksaan gambar dengan model AI sungguhan (deteksi asap/api, deteksi foto daur ulang)
 - [ ] Integrasi titik panas satelit (mis. NASA FIRMS) sebagai lapisan pembanding
@@ -187,12 +187,12 @@ docs/                # Panduan setup & gambar README
 - [ ] Notifikasi kejadian baru di sekitar wilayah pengguna
 - [ ] Mode offline untuk area dengan sinyal lemah
 
-## 👥 Tim
+## Tim
 
-| Nama | Peran | GitHub |
-|---|---|---|
-| Farhan Cahya Permana | Fullstack Developer | [@hanchyp](https://github.com/hanchyp) |
-| Alissa Tukhriyatun Nufus | Fullstack Developer | [@aluryy](https://github.com/aluryy) |
+| Nama                     | Peran               | GitHub                                 |
+| ------------------------ | ------------------- | -------------------------------------- |
+| Farhan Cahya Permana     | Fullstack Developer | [@hanchyp](https://github.com/hanchyp) |
+| Alissa Tukhriyatun Nufus | Fullstack Developer | [@aluryy](https://github.com/aluryy)   |
 
 ---
 
